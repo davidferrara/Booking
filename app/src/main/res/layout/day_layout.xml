@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/emailText"
@@ -24,17 +25,15 @@
 
         <TimePicker
             android:id="@+id/timePicker2"
-            android:layout_width="283dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <DatePicker
             android:id="@+id/datePicker3"
-            android:layout_width="555dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:endYear="2018"
-            android:startYear="2017" />
+            android:layout_weight="1" />
 
     </LinearLayout>
 
@@ -45,22 +44,21 @@
 
         <TimePicker
             android:id="@+id/timePicker3"
-            android:layout_width="283dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <DatePicker
             android:id="@+id/datePicker4"
-            android:layout_width="555dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:endYear="2018"
-            android:startYear="2017" />
+            android:layout_weight="1" />
     </LinearLayout>
 
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
-        android:layout_height="73dp"
+        android:layout_height="63dp"
         android:text="Save" />
+
 </LinearLayout>

@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CLBookingMASTER.iml" filepath="$PROJECT_DIR$/CLBookingMASTER.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Booking-master.iml" filepath="$PROJECT_DIR$/Booking-master.iml" />
+      <module fileurl="file://C:\Users\Ty\Desktop\New folder\Booking-master\CLBookingMASTER.iml" filepath="C:\Users\Ty\Desktop\New folder\Booking-master\CLBookingMASTER.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

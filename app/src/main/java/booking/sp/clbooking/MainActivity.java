@@ -49,6 +49,10 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import android.widget.Spinner;
+import com.clover.sdk.v3.employees.Employee;
+import com.clover.sdk.v3.employees.EmployeeConnector;
+
 public class MainActivity extends AppCompatActivity {
 
     private Context mContext;
@@ -60,6 +64,11 @@ public class MainActivity extends AppCompatActivity {
     private Button mEditEntriesButton;
     private Button mViewEntriesButton;
     ProgressDialog mProgress;
+    public static List<Event> events;
+
+    private Spinner employeeSpinner;
+    private EmployeeConnector mEmployeeConnector;
+    private ArrayList<Employee> employees;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -74,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
-
-
         // Get the application context
         mContext = getApplicationContext();
 
@@ -148,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
         mProgress.setMessage("Calling Google Calendar API ...");
 
         setContentView(activityLayout);
+        //setContentView(R.layout.day_layout);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -156,6 +163,37 @@ public class MainActivity extends AppCompatActivity {
         //endregion
 
     }
+/*
+    private void connectEmployees() {
+        disconnectEmployees();
+
+        if (mAccount != null ) {
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
+            mEmployeeConnector.connect();
+            employees = mEmployeev;
+            Connector.getEmployees();
+        }
+    }
+
+    private void disconnectEmployees() {
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    public void addItemsOnEmployeeSpinner() {
+
+        employeeSpinner = (Spinner) findViewById(R.id.employeeSpinner);
+        List<String> list = new ArrayList<String>();
+        for(Employee e : employees){
+            list.add(e.getName());
+        }
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        employeeSpinner.setAdapter(dataAdapter);
+    */
 
 
     //region Google Calendar API Methods
@@ -367,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
      * An asynchronous task that handles the Google Calendar API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
+    private class MakeRequestTask extends AsyncTask<Void, Void, List<Event>> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
 
@@ -386,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
          * @param params no parameters needed for this task.
          */
         @Override
-        protected List<String> doInBackground(Void... params) {
+        protected List<Event> doInBackground(Void... params) {
             try {
                 return getDataFromApi();
             } catch (Exception e) {
@@ -402,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
          * @return List of Strings describing returned events.
          * @throws IOException
          */
-        private List<String> getDataFromApi() throws IOException {
+        private List<Event> getDataFromApi() throws IOException {
             // List the next 10 events from the primary calendar.
             DateTime now = new DateTime(System.currentTimeMillis());
             List<String> eventStrings = new ArrayList<String>();
@@ -412,19 +450,7 @@ public class MainActivity extends AppCompatActivity {
                     .setOrderBy("startTime")
                     .setSingleEvents(true)
                     .execute();
-            List<Event> items = events.getItems();
-
-            for (Event event : items) {
-                DateTime start = event.getStart().getDateTime();
-                if (start == null) {
-                    // All-day events don't have start times, so just use
-                    // the start date.
-                    start = event.getStart().getDate();
-                }
-                eventStrings.add(
-                        String.format("%s (%s)", event.getSummary(), start));
-            }
-            return eventStrings;
+            return events.getItems();
         }
 
 
@@ -435,13 +461,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(List<String> output) {
+        protected void onPostExecute(List<Event> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
                 mOutputText.setText("No results returned.");
             } else {
-                output.add(0, "Data retrieved using the Google Calendar API:");
-                mOutputText.setText(TextUtils.join("\n", output));
+                List<String> list = new ArrayList<>();
+                for (Event event: output) {
+                    list.add(event.toString()+"\n");
+                }
+                mOutputText.setText(TextUtils.join("\n", list));
+                events = output;
             }
         }
 

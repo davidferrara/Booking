@@ -172,6 +172,7 @@ public class ViewActivity extends AppCompatActivity {
             //}
             TextView dayText = rowView.findViewById(R.id.dayText);
             TextView timeText = rowView.findViewById(R.id.timeText);
+            TextView descriptionText = rowView.findViewById(R.id.descriptionText);
             Button entryButton = rowView.findViewById(R.id.entryButton);
             Button reminderButton = rowView.findViewById(R.id.reminderButton);
 
@@ -184,8 +185,12 @@ public class ViewActivity extends AppCompatActivity {
             }
             Date sd = new Date(start.getValue());
             Date ed = new Date(e.getEnd().getDateTime().getValue());
+            //Title of Event.
             dayText.setText(e.getSummary());
+            //Date and Time of Event.
             timeText.setText(""+ sdf.format(sd) +" - "+ sdf.format(ed));
+            //Get the description of the event.
+            descriptionText.setText(e.getDescription());
             entryButton.setText("Edit Entry");
             entryButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

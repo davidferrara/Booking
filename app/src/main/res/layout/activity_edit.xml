@@ -4,14 +4,14 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/emailText"
+        android:id="@+id/emailLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Email:"
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/emailText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

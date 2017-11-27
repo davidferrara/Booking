@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     private Button mCallApiButton;
     private Button mEditEntriesButton;
     private Button mViewEntriesButton;
+    private Button mCreateEntryButton;
     ProgressDialog mProgress;
     public static List<Event> events;
 
@@ -158,8 +159,17 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
                 mViewEntriesButton.setEnabled(true);
             }
         });
-
         activityLayout.addView(mViewEntriesButton);
+
+        mCreateEntryButton = new Button(this);
+        mCreateEntryButton.setText("Create Entry");
+        mCreateEntryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new CreateEntryTask(mCredential).execute();
+            }
+        });
+        activityLayout.addView(mCreateEntryButton);
 
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
@@ -549,6 +559,116 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
+//endregion
+
+    /**
+     * An asynchronous task that handles the Google Calendar API call.
+     * Placing the API calls in their own task ensures the UI stays responsive.
+     */
+    private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Exception mLastError = null;
+
+        CreateEntryTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        }
+
+
+        public Event createEntryTest() throws IOException {
+            Event event = new Event()
+                    .setSummary("Google I/O 2015")
+                    .setLocation("800 Howard St., San Francisco, CA 94103")
+                    .setDescription("A chance to hear more about Google's developer products.");
+
+            DateTime startDateTime = new DateTime("2017-11-28T09:00:00-07:00");
+            EventDateTime start = new EventDateTime()
+                    .setDateTime(startDateTime)
+                    .setTimeZone("America/Los_Angeles");
+            event.setStart(start);
+
+            DateTime endDateTime = new DateTime("2017-11-28T17:00:00-07:00");
+            EventDateTime end = new EventDateTime()
+                    .setDateTime(endDateTime)
+                    .setTimeZone("America/Los_Angeles");
+            event.setEnd(end);
+
+            EventAttendee[] attendees = new EventAttendee[] {
+                    new EventAttendee().setEmail("lpage@example.com"),
+                    new EventAttendee().setEmail("sbrin@example.com"),
+            };
+            event.setAttendees(Arrays.asList(attendees));
+
+            EventReminder[] reminderOverrides = new EventReminder[] {
+                    new EventReminder().setMethod("email").setMinutes(24 * 60),
+                    new EventReminder().setMethod("popup").setMinutes(10),
+            };
+            Event.Reminders reminders = new Event.Reminders()
+                    .setUseDefault(false)
+                    .setOverrides(Arrays.asList(reminderOverrides));
+            event.setReminders(reminders);
+
+            String calendarId = "primary";
+            event = mService.events().insert(calendarId, event).execute();
+            return event;
+        }
+        /**
+         * Background task to call Google Calendar API.
+         *
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected Event doInBackground(Void... params) {
+            try {
+                return createEntryTest();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mOutputText.setText("");
+            mProgress.show();
+        }
+
+        @Override
+        protected void onPostExecute(Event output) {
+            mProgress.hide();
+            if (output == null || output.size() == 0) {
+                mOutputText.setText("Error Creating Event");
+            } else {
+                mOutputText.setText("Event created: "+ output.getHtmlLink());
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mProgress.hide();
+            if (mLastError != null) {
+                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+                    showGooglePlayServicesAvailabilityErrorDialog(
+                            ((GooglePlayServicesAvailabilityIOException) mLastError)
+                                    .getConnectionStatusCode());
+                } else if (mLastError instanceof UserRecoverableAuthIOException) {
+                    startActivityForResult(
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+                            MainActivity.REQUEST_AUTHORIZATION);
+                } else {
+                    mOutputText.setText("The following error occurred:\n"
+                            + mLastError.getMessage());
+                }
+            } else {
+                mOutputText.setText("Request cancelled.");
+            }
+        }
+    }
 
     /**
      * An asynchronous task that handles the Google Calendar API call.
@@ -645,7 +765,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             }
         }
     }
-    //endregion
 
 
 }

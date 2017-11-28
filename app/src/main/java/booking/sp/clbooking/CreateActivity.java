@@ -42,7 +42,6 @@ public class CreateActivity extends AppCompatActivity {
     private TimePicker timeEnd;
     private DatePicker dateEnd;
     private EditText emailText;
-    private TextView text;
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
     Calendar calendarEnd;
@@ -58,7 +57,6 @@ public class CreateActivity extends AppCompatActivity {
         timeEnd = findViewById(R.id.timeEnd);
         dateEnd = findViewById(R.id.dateEnd);
         emailText = findViewById(R.id.emailText);
-        text = findViewById(R.id.textView);
 
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +100,11 @@ public class CreateActivity extends AppCompatActivity {
             Event event = new Event()
                     .setSummary("Summary Text")
                     .setLocation("Location Text")
-                    .setDescription("Description Text");
+                    .setDescription(
+                            "Description Text Description Text Description Text Description Text Description Text" +
+                            "Description Text Description Text Description Text Description Text Description Text" +
+                            "Description Text Description Text Description Text Description Text Description Text" +
+                            "Description Text Description Text Description Text Description Text Description Text");
 
 
             DateTime startDateTime = new DateTime(calendarStart.getTime());
@@ -158,7 +160,7 @@ public class CreateActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Event output) {
             if (output == null) {
-                text.setText("Event is null");
+                //text.setText("Event is null");
             } else {
                 //text.setText(""+output.toString());
             }
@@ -172,11 +174,11 @@ public class CreateActivity extends AppCompatActivity {
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
-                    text.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
+                    //text.setText("The following error occurred:\n"
+                           // + mLastError.getMessage());
                 }
             } else {
-                text.setText("Request cancelled.");
+                //text.setText("Request cancelled.");
             }
         }
     }

@@ -1,13 +1,17 @@
 package booking.sp.clbooking;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,8 +23,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.SimpleCursorAdapter;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +39,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.clover.sdk.util.CloverAccount;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -59,6 +66,11 @@ public class ViewActivity extends AppCompatActivity {
     private Context mContext;
     private Activity mActivity;
     public List<Event> events;
+    SimpleArrayAdapter adapter;
+    ListView listview;
+
+    GoogleAccountCredential mCredential = MainActivity.mCredential;
+
     SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
 
 
@@ -66,40 +78,17 @@ public class ViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view);
-        // Get the application context
+
         mContext = getApplicationContext();
-        // Get the activity
         mActivity = ViewActivity.this;
-        final ListView listview = findViewById(R.id.listView);
-
-        //final StableArrayAdapter adapter = new StableArrayAdapter(this,
-         //       android.R.layout.simple_list_item_1, list);
+        listview = findViewById(R.id.listView);
         events = MainActivity.events;
-        if(events != null) {
 
-            final MySimpleArrayAdapter adapter = new MySimpleArrayAdapter(this, events.toArray(new Event[events.size()]));
-
+        if (events != null) {
+            adapter = new SimpleArrayAdapter(this, events);
             listview.setAdapter(adapter);
-
-            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                @Override
-                public void onItemClick(AdapterView<?> parent, final View view,
-                                        int position, long id) {
-                    final String item = (String) parent.getItemAtPosition(position);
-                   // view.animate().setDuration(2000).alpha(0)
-                            //.withEndAction(new Runnable() {
-                                //@Override
-                                //public void run() {
-                                    //list.remove(item);
-                                    //adapter.notifyDataSetChanged();
-                                    //view.setAlpha(1);
-                               // }
-                            //});
-                }
-
-            });
         }
+
         final Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -111,48 +100,25 @@ public class ViewActivity extends AppCompatActivity {
         final Button createButton = findViewById(R.id.createButton);
         createButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                    Intent myIntent = new Intent(mContext, CreateActivity.class);
-                    startActivityForResult(myIntent, 0);
+                Intent myIntent = new Intent(mContext, CreateActivity.class);
+                startActivityForResult(myIntent, 0);
             }
         });
     }
-    protected ListView getListView(){
-        return findViewById(R.id.listView);
+
+    @Override
+    protected void onResume() {
+        Log.i("test", "...Resumed.");
+        super.onResume();
+
+        //MainActivity.getResultsFromApi();
     }
 
-    //region arrayadapter
-    private class StableArrayAdapter extends ArrayAdapter<String> {
-
-        HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
-
-        public StableArrayAdapter(Context context, int textViewResourceId,
-                                  List<String> objects) {
-            super(context, textViewResourceId, objects);
-            for (int i = 0; i < objects.size(); ++i) {
-                mIdMap.put(objects.get(i), i);
-            }
-        }
-
-        @Override
-        public long getItemId(int position) {
-            String item = getItem(position);
-            return mIdMap.get(item);
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-
-    }
-
-    //endregion
-
-    public class MySimpleArrayAdapter extends ArrayAdapter<Event> {
+    public class SimpleArrayAdapter extends ArrayAdapter<Event> {
         private final Context context;
-        private final Event[] values;
+        private final List<Event> values;
 
-        public MySimpleArrayAdapter(Context context, Event[] values) {
+        public SimpleArrayAdapter(Context context, List<Event> values) {
             super(context, -1, values);
             this.context = context;
             this.values = values;
@@ -160,6 +126,10 @@ public class ViewActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            final int mPosition = position;
+            final View view = convertView;
+            final AdapterView<?> mParent = (AdapterView<?>) parent;
+
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = null;
@@ -167,16 +137,14 @@ public class ViewActivity extends AppCompatActivity {
                 rowView = inflater.inflate(R.layout.daylayout, parent, false);
             }
 
-            //for(Event event : events){
-            //    EventDateTime evt = event.getStart().getDate();
-            //}
             TextView dayText = rowView.findViewById(R.id.dayText);
             TextView timeText = rowView.findViewById(R.id.timeText);
             TextView descriptionText = rowView.findViewById(R.id.descriptionText);
             Button entryButton = rowView.findViewById(R.id.entryButton);
             Button reminderButton = rowView.findViewById(R.id.reminderButton);
+            Button deleteButton = rowView.findViewById(R.id.deleteButton);
 
-            Event e = values[position];
+            Event e = values.get(position);
             DateTime start = e.getStart().getDateTime();
             if (start == null) {
                 // All-day events don't have start times, so just use
@@ -188,7 +156,7 @@ public class ViewActivity extends AppCompatActivity {
             //Title of Event.
             dayText.setText(e.getSummary());
             //Date and Time of Event.
-            timeText.setText(""+ sdf.format(sd) +" - "+ sdf.format(ed));
+            timeText.setText("" + sdf.format(sd) + " - " + sdf.format(ed));
             //Get the description of the event.
             descriptionText.setText(e.getDescription());
             entryButton.setText("Edit Entry");
@@ -202,9 +170,9 @@ public class ViewActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent i = new Intent(Intent.ACTION_SEND);
                     i.setType("text/plain");
-                    i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"recipient@example.com"});
+                    i.putExtra(Intent.EXTRA_EMAIL, new String[]{"recipient@example.com"});
                     i.putExtra(Intent.EXTRA_SUBJECT, "subject of email");
-                    i.putExtra(Intent.EXTRA_TEXT   , "body of email");
+                    i.putExtra(Intent.EXTRA_TEXT, "body of email");
                     try {
                         startActivity(Intent.createChooser(i, "Send mail..."));
                     } catch (android.content.ActivityNotFoundException ex) {
@@ -213,13 +181,73 @@ public class ViewActivity extends AppCompatActivity {
                 }
             });
 
-            //timeText2.setText("TIME TEXT2");
-            //entryButton.setText("ENTRY");
-            //entryButton2.setText("ENTRY");
+            deleteButton.setOnClickListener(new View.OnClickListener() {
 
+                public void onClick(View v) {
+                    final Event item = (Event) mParent.getItemAtPosition(mPosition);
+                    final String itemLabel = item.getSummary();
+                    new AlertDialog.Builder(ViewActivity.this)
+                            .setTitle("Title")
+                            .setMessage("Do you really want to delete " + itemLabel +"?")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    new ViewActivity.DeleteEntryTask(mCredential, item).execute();
+                                    values.remove(item);
+                                    adapter.notifyDataSetChanged();
+                                    Toast.makeText(ViewActivity.this, itemLabel + " Successfully Deleted", Toast.LENGTH_SHORT).show();
+                                }})
+                            .setNegativeButton(android.R.string.no, null).show();
+                }
+            });
             return rowView;
         }
     }
 
+
+    private class DeleteEntryTask extends AsyncTask<Void, Void, Event> {
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Event mEvent;
+
+        DeleteEntryTask(GoogleAccountCredential credential, Event event) {
+            mEvent = event;
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        } public Event DeleteEntry() throws IOException {
+
+            String calendarId = "primary";
+            mService.events().delete(calendarId, mEvent.getId()).execute();
+            return mEvent;
+        }
+
+        /**
+         * Background task to call Google Calendar API.
+         *
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected Event doInBackground(Void... params) {
+            try {
+                return DeleteEntry();
+            } catch (Exception e) {
+                cancel(true);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onCancelled() {
+        }
+
+    }
 }
 

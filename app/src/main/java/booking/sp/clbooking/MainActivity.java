@@ -4,9 +4,11 @@ import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -347,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
      * of the preconditions are not satisfied, the app will prompt the user as
      * appropriate.
      */
-    private void getResultsFromApi() {
+    public void getResultsFromApi() {
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {

@@ -4,12 +4,6 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
-
-    <TextView
         android:id="@+id/emailLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

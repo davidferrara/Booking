@@ -163,16 +163,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         });
         activityLayout.addView(mViewEntriesButton);
 
-        mCreateEntryButton = new Button(this);
-        mCreateEntryButton.setText("Create Entry");
-        mCreateEntryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new CreateEntryTask(mCredential).execute();
-            }
-        });
-        activityLayout.addView(mCreateEntryButton);
-
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
@@ -227,7 +217,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         super.onDestroy();
         disconnectEmployee();
     }
-  
+
+    public void createEvent(){
+        new CreateEntryTask(mCredential).execute();
+    }
+
+
+
+
     private void connect() {
         disconnect();
         Log.i("test", "Connecting...");
@@ -767,4 +764,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             }
         }
     }
+
+
 }

@@ -1,8 +1,20 @@
 package booking.sp.clbooking;
 
+import android.accounts.Account;
+import android.os.IInterface;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.clover.sdk.util.CloverAccount;
+import com.clover.sdk.v1.BindingException;
+import com.clover.sdk.v1.ClientException;
+import com.clover.sdk.v1.ResultStatus;
+import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v1.ServiceConnector;
+import com.clover.sdk.v1.merchant.Merchant;
+import com.clover.sdk.v1.merchant.MerchantConnector;
+import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -35,6 +47,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -50,21 +63,29 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.clover.sdk.v3.employees.Employee;
 import com.clover.sdk.v3.employees.EmployeeConnector;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ServiceConnector.OnServiceConnectedListener, EmployeeConnector.OnActiveEmployeeChangedListener {
 
+    //region variables
     private Context mContext;
     private Activity mActivity;
+    private Account mAccount;
+    private MerchantConnector mMerchantConnector;
 
-    GoogleAccountCredential mCredential;
-    private TextView mOutputText;
+    public static GoogleAccountCredential mCredential;
+    public static TextView mOutputText;
+    private TextView mEmployeeTextView;
     private Button mCallApiButton;
     private Button mEditEntriesButton;
     private Button mViewEntriesButton;
+    private Button mCreateEntryButton;
     ProgressDialog mProgress;
     public static List<Event> events;
+
 
     private Spinner employeeSpinner;
     private EmployeeConnector mEmployeeConnector;
@@ -79,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String EDITBUTTON_TEXT = "Edit Entry";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +185,142 @@ public class MainActivity extends AppCompatActivity {
         //endregion
 
     }
+
+    @Override
+    protected void onResume() {
+        Log.i("test", "...Resumed.");
+        super.onResume();
+
+        // Retrieve the Clover account
+        if (mAccount == null) {
+            mAccount = CloverAccount.getAccount(this);
+
+            if (mAccount == null) {
+                Toast.makeText(this, null, Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+        }
+
+        // Create and Connect to the EmployeeConnector
+        connect();
+
+        // Get the employee object
+        getEmployee();
+
+        //Get API results (events)
+        getResultsFromApi();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectEmployee();
+    }
+
+    public void createEvent(){
+        new CreateEntryTask(mCredential).execute();
+    }
+
+
+
+
+    private void connect() {
+        disconnect();
+        Log.i("test", "Connecting...");
+        if (mAccount != null) {
+            Log.i("test", "Account is not null");
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, this);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnect() {   //remember to disconnect!
+        Log.i("test", "Disconnecting...");
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    private void getEmployee() {
+        // Show progressBar while waiting
+        //progressBar.setVisibility(View.VISIBLE);
+
+        mEmployeeConnector.getEmployee(new EmployeeConnector.EmployeeCallback<Employee>() {
+            @Override
+            public void onServiceSuccess(Employee result, ResultStatus status) {
+                super.onServiceSuccess(result, status);
+
+                // Hide the progressBar
+                //progressBar.setVisibility(View.GONE);
+
+                mEmployeeTextView.setText(result.getName());
+                Log.i("name test", result.getName());
+               // role.setText(result.getRole().toString());
+            }
+        });
+    }
+
+    private void connectEmployee() {
+        disconnectEmployee();
+
+        if (mAccount != null) {
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnectEmployee() {
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    /*private class EmployeeAsyncTask extends AsyncTask<Object, Object, Employee> {
+
+        @Override
+        protected Employee doInBackground(Object... voids) {
+            try {
+                return mEmployeeConnector.getEmployee();
+            } catch (RemoteException | ClientException | ServiceException | BindingException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected final void onPostExecute(Employee employee) {
+            super.onPostExecute(employee);
+            Log.i("test", employee.getName());
+            if(employee != null) {
+                mEmployeeTextView.setText("First employee: " + employee.getName());
+            }
+        }
+
+    }*/
+
+    @Override
+    public void onActiveEmployeeChanged(Employee employee) {
+        Log.i("test", "Employee change!");
+        if (employee != null) {
+            mEmployeeTextView.setText(employee.getName());
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ServiceConnector<? extends IInterface> serviceConnector) {
+
+    }
+
+    @Override
+    public void onServiceDisconnected(ServiceConnector<? extends IInterface> serviceConnector) {
+
+    }
+
 /*
     private void connectEmployees() {
         disconnectEmployees();
@@ -400,6 +558,116 @@ public class MainActivity extends AppCompatActivity {
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
+//endregion
+
+    /**
+     * An asynchronous task that handles the Google Calendar API call.
+     * Placing the API calls in their own task ensures the UI stays responsive.
+     */
+    private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Exception mLastError = null;
+
+        CreateEntryTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        }
+
+
+        public Event createEntryTest() throws IOException {
+            Event event = new Event()
+                    .setSummary("Google I/O 2015")
+                    .setLocation("800 Howard St., San Francisco, CA 94103")
+                    .setDescription("A chance to hear more about Google's developer products.");
+
+            DateTime startDateTime = new DateTime("2017-11-28T09:00:00-07:00");
+            EventDateTime start = new EventDateTime()
+                    .setDateTime(startDateTime)
+                    .setTimeZone("America/Los_Angeles");
+            event.setStart(start);
+
+            DateTime endDateTime = new DateTime("2017-11-28T17:00:00-07:00");
+            EventDateTime end = new EventDateTime()
+                    .setDateTime(endDateTime)
+                    .setTimeZone("America/Los_Angeles");
+            event.setEnd(end);
+
+            EventAttendee[] attendees = new EventAttendee[] {
+                    new EventAttendee().setEmail("lpage@example.com"),
+                    new EventAttendee().setEmail("sbrin@example.com"),
+            };
+            event.setAttendees(Arrays.asList(attendees));
+
+            EventReminder[] reminderOverrides = new EventReminder[] {
+                    new EventReminder().setMethod("email").setMinutes(24 * 60),
+                    new EventReminder().setMethod("popup").setMinutes(10),
+            };
+            Event.Reminders reminders = new Event.Reminders()
+                    .setUseDefault(false)
+                    .setOverrides(Arrays.asList(reminderOverrides));
+            event.setReminders(reminders);
+
+            String calendarId = "primary";
+            event = mService.events().insert(calendarId, event).execute();
+            return event;
+        }
+        /**
+         * Background task to call Google Calendar API.
+         *
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected Event doInBackground(Void... params) {
+            try {
+                return createEntryTest();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mOutputText.setText("");
+            mProgress.show();
+        }
+
+        @Override
+        protected void onPostExecute(Event output) {
+            mProgress.hide();
+            if (output == null || output.size() == 0) {
+                mOutputText.setText("Error Creating Event");
+            } else {
+                mOutputText.setText("Event created: "+ output.getHtmlLink());
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mProgress.hide();
+            if (mLastError != null) {
+                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+                    showGooglePlayServicesAvailabilityErrorDialog(
+                            ((GooglePlayServicesAvailabilityIOException) mLastError)
+                                    .getConnectionStatusCode());
+                } else if (mLastError instanceof UserRecoverableAuthIOException) {
+                    startActivityForResult(
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+                            MainActivity.REQUEST_AUTHORIZATION);
+                } else {
+                    mOutputText.setText("The following error occurred:\n"
+                            + mLastError.getMessage());
+                }
+            } else {
+                mOutputText.setText("Request cancelled.");
+            }
+        }
+    }
 
     /**
      * An asynchronous task that handles the Google Calendar API call.
@@ -496,7 +764,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    //endregion
 
 
 }

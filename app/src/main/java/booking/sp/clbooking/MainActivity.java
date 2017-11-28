@@ -70,13 +70,14 @@ import com.clover.sdk.v3.employees.EmployeeConnector;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnector.OnServiceConnectedListener, EmployeeConnector.OnActiveEmployeeChangedListener {
 
+    //region variables
     private Context mContext;
     private Activity mActivity;
     private Account mAccount;
     private MerchantConnector mMerchantConnector;
 
-    GoogleAccountCredential mCredential;
-    private TextView mOutputText;
+    public static GoogleAccountCredential mCredential;
+    public static TextView mOutputText;
     private TextView mEmployeeTextView;
     private Button mCallApiButton;
     private Button mEditEntriesButton;
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     private static final String EDITBUTTON_TEXT = "Edit Entry";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         super.onDestroy();
         disconnectEmployee();
     }
-
+  
     private void connect() {
         disconnect();
         Log.i("test", "Connecting...");
@@ -765,6 +767,4 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             }
         }
     }
-
-
 }

@@ -26,6 +26,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import android.widget.TimePicker;
+
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
@@ -42,18 +44,20 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import com.google.api.services.calendar.CalendarScopes;
+
+import java.util.Arrays;
+import java.util.Date;
 
 public class CreateActivity extends AppCompatActivity {
-
-    //Start Time and Date
+  
     private TimePicker timeStart;
     private DatePicker dateStart;
-    //End Time and Date
     private TimePicker timeEnd;
     private DatePicker dateEnd;
-    //Customer's email
     private EditText emailText;
     private TextView text;
+  
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -72,7 +76,7 @@ public class CreateActivity extends AppCompatActivity {
         dateEnd = findViewById(R.id.dateEnd);
         emailText = findViewById(R.id.emailText);
         text = findViewById(R.id.textView);
-
+      
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -82,8 +86,8 @@ public class CreateActivity extends AppCompatActivity {
                 finish();
             }
         });
-    }
 
+    }
     private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;

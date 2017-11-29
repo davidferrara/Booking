@@ -68,6 +68,7 @@ public class ViewActivity extends AppCompatActivity {
     public List<Event> events;
     SimpleArrayAdapter adapter;
     ListView listview;
+    static Event currentItem;
 
     GoogleAccountCredential mCredential = MainActivity.mCredential;
 
@@ -162,6 +163,7 @@ public class ViewActivity extends AppCompatActivity {
             entryButton.setText("Edit Entry");
             entryButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    currentItem = (Event) mParent.getItemAtPosition(mPosition);
                     Intent myIntent = new Intent(mContext, EditActivity.class);
                     startActivityForResult(myIntent, 0);
                 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/emailText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textEmailAddress" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="245dp"
+        android:orientation="horizontal">
+
+        <TimePicker
+            android:id="@+id/timePicker2"
+            android:layout_width="283dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <DatePicker
+            android:id="@+id/datePicker3"
+            android:layout_width="555dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:endYear="2018"
+            android:startYear="2017" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="245dp"
+        android:orientation="horizontal">
+
+        <TimePicker
+            android:id="@+id/timePicker3"
+            android:layout_width="283dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <DatePicker
+            android:id="@+id/datePicker4"
+            android:layout_width="555dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:endYear="2018"
+            android:startYear="2017" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="73dp"
+        android:text="Save" />
+</LinearLayout>

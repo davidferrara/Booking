@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView01"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+<LinearLayout android:id="@+id/info"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/customerNameTitle"
+            android:layout_width="116dp"
+            android:layout_height="wrap_content"
+            android:text="Customer Name"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/descTitle"
+            android:layout_width="101dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="130dp"
+            android:text="Description"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="560dp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="87dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/createButton"
+            android:layout_width="20dp"
+            android:layout_height="82dp"
+            android:layout_weight="1"
+            android:text="Create Entry" />
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="82dp"
+            android:layout_weight="1"
+            android:text="Back" />
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

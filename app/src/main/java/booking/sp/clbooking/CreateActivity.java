@@ -41,10 +41,19 @@ public class CreateActivity extends AppCompatActivity {
     private DatePicker dateStart;
     private TimePicker timeEnd;
     private DatePicker dateEnd;
+    private TextView nameLabel;
+    private EditText nameText;
+    private TextView emailLabel;
     private EditText emailText;
+    private TextView reasonLabel;
+    private EditText reasonText;
+
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
     Calendar calendarEnd;
+    String nameString;
+    String emailString;
+    String reasonString;
 
 
     @Override
@@ -56,7 +65,12 @@ public class CreateActivity extends AppCompatActivity {
         dateStart = findViewById(R.id.dateStart);
         timeEnd = findViewById(R.id.timeEnd);
         dateEnd = findViewById(R.id.dateEnd);
+        nameLabel = findViewById(R.id.nameLabel);
+        nameText = findViewById(R.id.nameText);
+        emailLabel = findViewById(R.id.emailLabel);
         emailText = findViewById(R.id.emailText);
+        reasonLabel = findViewById(R.id.reasonLabel);
+        reasonText = findViewById(R.id.reasonText);
 
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +89,9 @@ public class CreateActivity extends AppCompatActivity {
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
+                nameString = nameText.getText().toString();
+                emailString = emailText.getText().toString();
+                reasonString = reasonText.getText().toString();
                 new CreateEntryTask(mCredential).execute();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
@@ -98,13 +115,9 @@ public class CreateActivity extends AppCompatActivity {
 
         public Event createEntryTest() throws IOException {
             Event event = new Event()
-                    .setSummary("Summary Text")
-                    .setLocation("Location Text")
-                    .setDescription(
-                            "Description Text Description Text Description Text Description Text Description Text" +
-                            "Description Text Description Text Description Text Description Text Description Text" +
-                            "Description Text Description Text Description Text Description Text Description Text" +
-                            "Description Text Description Text Description Text Description Text Description Text");
+                    .setSummary(nameString)
+                    .setLocation("Rowan University")
+                    .setDescription(reasonString);
 
 
             DateTime startDateTime = new DateTime(calendarStart.getTime());
@@ -120,8 +133,7 @@ public class CreateActivity extends AppCompatActivity {
             event.setEnd(end);
 
             EventAttendee[] attendees = new EventAttendee[] {
-                    new EventAttendee().setEmail("lpage@example.com"),
-                    new EventAttendee().setEmail("sbrin@example.com"),
+                    new EventAttendee().setEmail(emailString)
             };
             event.setAttendees(Arrays.asList(attendees));
 
@@ -134,7 +146,7 @@ public class CreateActivity extends AppCompatActivity {
             event.setReminders(reminders);
 
             String calendarId = "primary";
-            event = mService.events().insert(calendarId, event).execute();
+            event = mService.events().insert(calendarId, event).setSendNotifications(Boolean.TRUE).execute();
             return event;
         }
 

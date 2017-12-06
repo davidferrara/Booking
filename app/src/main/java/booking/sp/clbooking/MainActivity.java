@@ -61,13 +61,10 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MainActivity extends AppCompatActivity implements ServiceConnector.OnServiceConnectedListener, EmployeeConnector.OnActiveEmployeeChangedListener {
-
+public class MainActivity extends AppCompatActivity implements ServiceConnector.OnServiceConnectedListener{
     //region variables
     private Context mContext;
     private Activity mActivity;
-    private Account mAccount;
-    private MerchantConnector mMerchantConnector;
 
     public static GoogleAccountCredential mCredential;
     public static TextView mOutputText;
@@ -79,10 +76,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     ProgressDialog mProgress;
     public static List<Event> events;
 
-
-    private Spinner employeeSpinner;
-    private EmployeeConnector mEmployeeConnector;
-    private ArrayList<Employee> employees;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -184,85 +177,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         Log.i("test", "...Resumed.");
         super.onResume();
 
-        // Retrieve the Clover account
-        if (mAccount == null) {
-            mAccount = CloverAccount.getAccount(this);
-
-            if (mAccount == null) {
-                Toast.makeText(this, null, Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
-        }
-
-        // Create and Connect to the EmployeeConnector
-        connect();
-
-        // Get the employee object
-        getEmployee();
-
         //Get API results (events)
         getResultsFromApi();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        disconnectEmployee();
-    }
-
-    private void connect() {
-        disconnect();
-        Log.i("test", "Connecting...");
-        if (mAccount != null) {
-            Log.i("test", "Account is not null");
-            mEmployeeConnector = new EmployeeConnector(this, mAccount, this);
-            mEmployeeConnector.connect();
-        }
-    }
-
-    private void disconnect() {   //remember to disconnect!
-        Log.i("test", "Disconnecting...");
-        if (mEmployeeConnector != null) {
-            mEmployeeConnector.disconnect();
-            mEmployeeConnector = null;
-        }
-    }
-
-    private void getEmployee() {
-        // Show progressBar while waiting
-        //progressBar.setVisibility(View.VISIBLE);
-
-        mEmployeeConnector.getEmployee(new EmployeeConnector.EmployeeCallback<Employee>() {
-            @Override
-            public void onServiceSuccess(Employee result, ResultStatus status) {
-                super.onServiceSuccess(result, status);
-
-                // Hide the progressBar
-                //progressBar.setVisibility(View.GONE);
-
-                mEmployeeTextView.setText(result.getName());
-                Log.i("name test", result.getName());
-               // role.setText(result.getRole().toString());
-            }
-        });
-    }
-
-    private void connectEmployee() {
-        disconnectEmployee();
-
-        if (mAccount != null) {
-            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
-            mEmployeeConnector.connect();
-        }
-    }
-
-    private void disconnectEmployee() {
-        if (mEmployeeConnector != null) {
-            mEmployeeConnector.disconnect();
-            mEmployeeConnector = null;
-        }
-    }
 
     /*private class EmployeeAsyncTask extends AsyncTask<Object, Object, Employee> {
 
@@ -290,14 +208,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     }*/
 
     @Override
-    public void onActiveEmployeeChanged(Employee employee) {
-        Log.i("test", "Employee change!");
-        if (employee != null) {
-            mEmployeeTextView.setText(employee.getName());
-        }
-    }
-
-    @Override
     public void onServiceConnected(ServiceConnector<? extends IInterface> serviceConnector) {
 
     }
@@ -306,38 +216,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     public void onServiceDisconnected(ServiceConnector<? extends IInterface> serviceConnector) {
 
     }
-
-/*
-    private void connectEmployees() {
-        disconnectEmployees();
-
-        if (mAccount != null ) {
-            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
-            mEmployeeConnector.connect();
-            employees = mEmployeev;
-            Connector.getEmployees();
-        }
-    }
-
-    private void disconnectEmployees() {
-        if (mEmployeeConnector != null) {
-            mEmployeeConnector.disconnect();
-            mEmployeeConnector = null;
-        }
-    }
-
-    public void addItemsOnEmployeeSpinner() {
-
-        employeeSpinner = (Spinner) findViewById(R.id.employeeSpinner);
-        List<String> list = new ArrayList<String>();
-        for(Employee e : employees){
-            list.add(e.getName());
-        }
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        employeeSpinner.setAdapter(dataAdapter);
-    */
 
 
     //region Google Calendar API Methods

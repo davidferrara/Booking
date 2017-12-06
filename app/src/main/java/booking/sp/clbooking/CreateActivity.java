@@ -4,9 +4,11 @@ package booking.sp.clbooking;
  * Created by Ty on 11/5/2017.
  */
 
+import android.accounts.Account;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +17,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.clover.sdk.util.CloverAccount;
+import com.clover.sdk.v1.BindingException;
+import com.clover.sdk.v1.ClientException;
+import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -53,7 +60,11 @@ public class CreateActivity extends AppCompatActivity {
     Calendar calendarEnd;
     String nameString;
     String emailString;
-    String reasonString;
+    String reasonString = "";
+
+    //Clover variables
+    private Account mAccount;
+    private EmployeeConnector mEmployeeConnector;
 
 
     @Override
@@ -91,13 +102,78 @@ public class CreateActivity extends AppCompatActivity {
                         00);
                 nameString = nameText.getText().toString();
                 emailString = emailText.getText().toString();
-                reasonString = reasonText.getText().toString();
+                reasonString += reasonText.getText().toString();
                 new CreateEntryTask(mCredential).execute();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //Retrieve Clover account
+        if (mAccount == null) {
+            mAccount = CloverAccount.getAccount(this);
+
+            if (mAccount == null) {
+                return;
+            }
+        }
+
+        connectEmployee();
+
+        new EmployeeAsyncTask().execute();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectEmployee();
+    }
+
+
+    private void connectEmployee() {
+        disconnectEmployee();
+
+        if (mAccount != null) {
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnectEmployee() {
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    private class EmployeeAsyncTask extends AsyncTask<Object, Object, com.clover.sdk.v3.employees.Employee> {
+
+        @Override
+        protected com.clover.sdk.v3.employees.Employee doInBackground(Object... voids) {
+            try {
+                return mEmployeeConnector.getEmployees().get(0);
+            } catch (RemoteException | ClientException | ServiceException | BindingException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected final void onPostExecute(com.clover.sdk.v3.employees.Employee employee) {
+            super.onPostExecute(employee);
+            if (employee != null) {
+                reasonString += employee.getName() + ": ";
+
+            }
+        }
+
     }
 
     private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
@@ -123,7 +199,7 @@ public class CreateActivity extends AppCompatActivity {
             DateTime startDateTime = new DateTime(calendarStart.getTime());
             EventDateTime start = new EventDateTime()
                     .setDateTime(startDateTime);
-                    //.setTimeZone(TimeZone.getDefault().toString());
+            //.setTimeZone(TimeZone.getDefault().toString());
             //text.setText(""+(TimeZone.getDefault()));
             event.setStart(start);
 
@@ -187,7 +263,7 @@ public class CreateActivity extends AppCompatActivity {
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
                     //text.setText("The following error occurred:\n"
-                           // + mLastError.getMessage());
+                    // + mLastError.getMessage());
                 }
             } else {
                 //text.setText("Request cancelled.");

@@ -11,9 +11,11 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -21,6 +23,7 @@ import com.clover.sdk.util.CloverAccount;
 import com.clover.sdk.v1.BindingException;
 import com.clover.sdk.v1.ClientException;
 import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v3.employees.Employee;
 import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -54,6 +57,9 @@ public class CreateActivity extends AppCompatActivity {
     private EditText emailText;
     private TextView reasonLabel;
     private EditText reasonText;
+    private TextView employeeLabel;
+    private List<String> employeeArray = new ArrayList<>();
+    private Spinner employeeDropDown;
 
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
@@ -82,6 +88,11 @@ public class CreateActivity extends AppCompatActivity {
         emailText = findViewById(R.id.emailText);
         reasonLabel = findViewById(R.id.reasonLabel);
         reasonText = findViewById(R.id.reasonText);
+        employeeLabel = findViewById(R.id.employeeLabel);
+        employeeDropDown = findViewById(R.id.employeeDropDown);
+
+        //Call method to populate Spinner from ArrayList
+        addEmployeesToSpinner();
 
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -152,12 +163,12 @@ public class CreateActivity extends AppCompatActivity {
         }
     }
 
-    private class EmployeeAsyncTask extends AsyncTask<Object, Object, com.clover.sdk.v3.employees.Employee> {
+    private class EmployeeAsyncTask extends AsyncTask<Object, Object, List<Employee>> {
 
         @Override
-        protected com.clover.sdk.v3.employees.Employee doInBackground(Object... voids) {
+        protected List<Employee> doInBackground(Object... voids) {
             try {
-                return mEmployeeConnector.getEmployees().get(0);
+                return mEmployeeConnector.getEmployees();
             } catch (RemoteException | ClientException | ServiceException | BindingException e) {
                 e.printStackTrace();
             }
@@ -166,14 +177,25 @@ public class CreateActivity extends AppCompatActivity {
         }
 
         @Override
-        protected final void onPostExecute(com.clover.sdk.v3.employees.Employee employee) {
-            super.onPostExecute(employee);
-            if (employee != null) {
-                reasonString += employee.getName() + ": ";
+        protected final void onPostExecute(List<Employee> employees) {
+            super.onPostExecute(employees);
+            if (employees != null) {
+                for(Employee employee : employees)
+                {
+                    employeeArray.add(employee.getName());
+                }
 
             }
         }
 
+    }
+
+    private void addEmployeesToSpinner()
+    {
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, employeeArray);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        employeeDropDown.setAdapter(dataAdapter);
     }
 
     private class CreateEntryTask extends AsyncTask<Void, Void, Event> {

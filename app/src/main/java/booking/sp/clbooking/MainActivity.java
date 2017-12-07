@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         // Get the application context
         mContext = getApplicationContext();
 
@@ -105,13 +107,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         mActivity = MainActivity.this;
 
         //region Google API UI
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
+        //LinearLayout activityLayout = new LinearLayout(this);
+        //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+        //        LinearLayout.LayoutParams.MATCH_PARENT,
+        //        LinearLayout.LayoutParams.MATCH_PARENT);
+        //activityLayout.setLayoutParams(lp);
+        //activityLayout.setOrientation(LinearLayout.VERTICAL);
+        //activityLayout.setPadding(16, 16, 16, 16);
 
         ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -128,33 +130,33 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
                 mCallApiButton.setEnabled(true);
             }
         });
-        activityLayout.addView(mCallApiButton);
+        //activityLayout.addView(mCallApiButton);
 
-        mEditEntriesButton = new Button(this);
-        mEditEntriesButton.setText(EDITBUTTON_TEXT);
-        mEditEntriesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditEntriesButton.setEnabled(false);
-                Intent myIntent = new Intent(mContext, EditActivity.class);
-                startActivityForResult(myIntent, 0);
-                mEditEntriesButton.setEnabled(true);
-            }
-        });
-        activityLayout.addView(mEditEntriesButton);
+        //mEditEntriesButton = new Button(this);
+        //mEditEntriesButton.setText(EDITBUTTON_TEXT);
+        //mEditEntriesButton.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View v) {
+        //        mEditEntriesButton.setEnabled(false);
+        //        Intent myIntent = new Intent(mContext, EditActivity.class);
+        //        startActivityForResult(myIntent, 0);
+        //        mEditEntriesButton.setEnabled(true);
+        //    }
+        //});
+        //activityLayout.addView(mEditEntriesButton);
 
-        mViewEntriesButton = new Button(this);
-        mViewEntriesButton.setText("View Entries");
-        mViewEntriesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewEntriesButton.setEnabled(false);
-                Intent myIntent = new Intent(mContext, ViewActivity.class);
-                startActivityForResult(myIntent, 0);
-                mViewEntriesButton.setEnabled(true);
-            }
-        });
-        activityLayout.addView(mViewEntriesButton);
+        //mViewEntriesButton = new Button(this);
+        //mViewEntriesButton.setText("View Entries");
+        //mViewEntriesButton.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View v) {
+        //        mViewEntriesButton.setEnabled(false);
+        //        Intent myIntent = new Intent(mContext, ViewActivity.class);
+        //        startActivityForResult(myIntent, 0);
+        //        mViewEntriesButton.setEnabled(true);
+        //    }
+        //});
+        //activityLayout.addView(mViewEntriesButton);
 
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
@@ -163,12 +165,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         mOutputText.setMovementMethod(new ScrollingMovementMethod());
         mOutputText.setText(
                 "Click the \'" + BUTTON_TEXT + "\' button to test the API.");
-        activityLayout.addView(mOutputText);
+        //activityLayout.addView(mOutputText);
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Google Calendar API ...");
 
-        setContentView(activityLayout);
+        //setContentView(activityLayout);
         //setContentView(R.layout.day_layout);
 
         // Initialize credentials and service object.

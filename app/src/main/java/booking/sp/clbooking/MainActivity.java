@@ -111,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         mContext = getApplicationContext();
         mActivity = MainActivity.this;
         listview = findViewById(R.id.listView);
-        events = MainActivity.events;
-        cal = Calendar.getInstance();
+        cal = Calendar.getInstance();  //Gets a calendar using the default time zone and locale.
         currentDate = findViewById(R.id.currentDate);
 
         //Set the current date in the textView on the main screen

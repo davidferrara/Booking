@@ -25,7 +25,7 @@ import android.widget.TextView;
 /**
  * Created by Ty on 11/5/2017.
  */
-public class ListViewLoader extends ViewActivity
+public class ListViewLoader extends MainActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // This is the Adapter being used to display the list's data

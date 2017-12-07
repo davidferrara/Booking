@@ -2,6 +2,10 @@ package booking.sp.clbooking;
 
 /**
  * Created by Mike on 12/6/2017.
+ * This is fairly basic and standard code that might need to be expanded upon
+ * might want to add highlighted dates for days that have events on them
+ *
+ * Last Updated on 12/7/2017
  */
 
 import android.app.Activity;
@@ -14,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +31,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.CalendarView;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -61,8 +67,27 @@ import com.google.api.client.util.DateTime;
 
 import com.google.api.services.calendar.model.*;
 
-public class CalendarActivity {
+public class CalendarActivity extends AppCompatActivity {
 
-//nothing yet
+    //Sets up Calendar
+    private  static final String name = "CalendarActivity";
+    private CalendarView mainCalendarView;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_calendar);
+        mainCalendarView = (CalendarView) findViewById(R.id.calendarView);
+        mainCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            //sends date selected to CreateActivity
+            @Override
+            public void onSelectedDayChange(CalendarView CalendarView, int year, int month, int day) {
+                String date = year + "/" + month + "/"+ day ;
+                Log.d(name, "onSelectedDayChange: yyyy/mm/dd:" + date);
+                Intent intent = new Intent(CalendarActivity.this,CreateActivity.class);
+                intent.putExtra("date",date);
+                startActivity(intent);
 
+            }
+        });
+    }
 }

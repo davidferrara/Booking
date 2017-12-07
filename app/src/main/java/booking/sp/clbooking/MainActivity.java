@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -79,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     static Event currentItem;
     SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
     TextView currentDate;
+    Date date = new Date();
+    Calendar cal;
 
     public static GoogleAccountCredential mCredential;
     public static TextView mOutputText;
@@ -106,13 +109,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
 
         mContext = getApplicationContext();
         mActivity = MainActivity.this;
-        listview = findViewById(R.id.listView12);
+        listview = findViewById(R.id.listView);
         events = MainActivity.events;
+        cal = Calendar.getInstance();
         currentDate = findViewById(R.id.currentDate);
 
         //Set the current date in the textView on the main screen
-        Date date = new Date();
         currentDate.setText(sdf.format(date));
+
 
 
         if (events != null) {
@@ -126,6 +130,23 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             public void onClick(View v) {
                 Intent myIntent = new Intent(mContext, CreateActivity.class);
                 startActivityForResult(myIntent, 0);
+            }
+        });
+
+
+        //Button to change the date back
+        final Button previousButton = findViewById(R.id.previousDayButton);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            currentDate.setText(sdf.format(getPreviousDate(date)));
+            }
+        });
+
+        //Button to change the date forward
+        final Button nextButton = findViewById(R.id.nextDayButton);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            currentDate.setText(sdf.format(getNextDate(date)));
             }
         });
 
@@ -170,7 +191,22 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         disconnectEmployee();
     }
 
+    //Method to get the previous date
+    private Date getPreviousDate(Date d) {
+        cal.setTime(d);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        Date prevDate = cal.getTime();
+        date = prevDate;
+        return prevDate;
+    }
 
+    private Date getNextDate(Date d) {
+        cal.setTime(d);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        Date nextDate = cal.getTime();
+        date = nextDate;
+        return nextDate;
+    }
 
 
     public class SimpleArrayAdapter extends ArrayAdapter<Event> {

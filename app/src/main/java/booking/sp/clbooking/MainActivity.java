@@ -100,6 +100,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // When you click on the create button on the main screen, it will start the create activity.
+        final Button createButton = findViewById(R.id.createButton);
+        createButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent myIntent = new Intent(mContext, CreateActivity.class);
+                startActivityForResult(myIntent, 0);
+            }
+        });
+
         // Get the application context
         mContext = getApplicationContext();
 
@@ -119,17 +128,17 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
-        });
+        //mCallApiButton = new Button(this);
+        //mCallApiButton.setText(BUTTON_TEXT);
+        //mCallApiButton.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View v) {
+        //        mCallApiButton.setEnabled(false);
+        //        mOutputText.setText("");
+        //        getResultsFromApi();
+        //        mCallApiButton.setEnabled(true);
+        //    }
+        //});
         //activityLayout.addView(mCallApiButton);
 
         //mEditEntriesButton = new Button(this);

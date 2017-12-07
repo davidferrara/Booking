@@ -18,7 +18,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/createButton"
+            android:id="@+id/createButton12"
             android:layout_width="20dp"
             android:layout_height="82dp"
             android:layout_weight="1"

@@ -98,7 +98,7 @@ public class ViewActivity extends AppCompatActivity {
                 finish();
             }
         });
-        final Button createButton = findViewById(R.id.createButton);
+        final Button createButton = findViewById(R.id.createButton12);
         createButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent myIntent = new Intent(mContext, CreateActivity.class);

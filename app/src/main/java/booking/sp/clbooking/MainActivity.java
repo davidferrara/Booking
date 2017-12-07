@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     static Event currentItem;
     SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
 
-
-
     public static GoogleAccountCredential mCredential;
     public static TextView mOutputText;
     private TextView mEmployeeTextView;
@@ -90,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     //private Button mCreateEntryButton;
     ProgressDialog mProgress;
     public static List<Event> events;
-
 
     private Spinner employeeSpinner;
     private EmployeeConnector mEmployeeConnector;
@@ -117,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         listview = findViewById(R.id.listView12);
         events = MainActivity.events;
 
+
+
         if (events != null) {
             adapter = new MainActivity.SimpleArrayAdapter(this, events);
             listview.setAdapter(adapter);
@@ -131,9 +130,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             }
         });
 
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -816,44 +812,44 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
 
         @Override
         protected void onPreExecute() {
-            mOutputText.setText("");
-            mProgress.show();
+            //mOutputText.setText("");
+            //mProgress.show();
         }
 
         @Override
         protected void onPostExecute(List<Event> output) {
-            mProgress.hide();
-            if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
-            } else {
-                List<String> list = new ArrayList<>();
-                for (Event event: output) {
-                    list.add(event.toString()+"\n");
-                }
-                mOutputText.setText(TextUtils.join("\n", list));
-                events = output;
-            }
+            //mProgress.hide();
+            //if (output == null || output.size() == 0) {
+            //    mOutputText.setText("No results returned.");
+            //} else {
+            //    List<String> list = new ArrayList<>();
+            //    for (Event event: output) {
+            //        list.add(event.toString()+"\n");
+            //    }
+            //    mOutputText.setText(TextUtils.join("\n", list));
+            //    events = output;
+            //}
         }
 
         @Override
         protected void onCancelled() {
-            mProgress.hide();
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
-                } else {
-                    mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
-                }
-            } else {
-                mOutputText.setText("Request cancelled.");
-            }
+            //mProgress.hide();
+            //if (mLastError != null) {
+            //    if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+            //        showGooglePlayServicesAvailabilityErrorDialog(
+            //                ((GooglePlayServicesAvailabilityIOException) mLastError)
+            //                        .getConnectionStatusCode());
+            //    } else if (mLastError instanceof UserRecoverableAuthIOException) {
+            //        startActivityForResult(
+            //                ((UserRecoverableAuthIOException) mLastError).getIntent(),
+            //                MainActivity.REQUEST_AUTHORIZATION);
+            //    } else {
+            //        mOutputText.setText("The following error occurred:\n"
+            //                + mLastError.getMessage());
+            //    }
+            //} else {
+            //    mOutputText.setText("Request cancelled.");
+            //}
         }
     }
 

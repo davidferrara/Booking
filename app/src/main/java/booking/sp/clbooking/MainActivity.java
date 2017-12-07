@@ -78,14 +78,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     ListView listview;
     static Event currentItem;
     SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
+    TextView currentDate;
 
     public static GoogleAccountCredential mCredential;
     public static TextView mOutputText;
     private TextView mEmployeeTextView;
-    //private Button mCallApiButton;
-    //private Button mEditEntriesButton;
-    //private Button mViewEntriesButton;
-    //private Button mCreateEntryButton;
     ProgressDialog mProgress;
     public static List<Event> events;
 
@@ -98,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    //private static final String BUTTON_TEXT = "Call Google Calendar API";
-    //private static final String EDITBUTTON_TEXT = "Edit Entry";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
     //endregion
@@ -113,7 +108,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         mActivity = MainActivity.this;
         listview = findViewById(R.id.listView12);
         events = MainActivity.events;
+        currentDate = findViewById(R.id.currentDate);
 
+        //Set the current date in the textView on the main screen
+        Date date = new Date();
+        currentDate.setText(sdf.format(date));
 
 
         if (events != null) {
@@ -457,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            mOutputText.setText("No network connection available.");
+            //mOutputText.setText("No network connection available.");
         } else {
             new MakeRequestTask(mCredential).execute();
         }

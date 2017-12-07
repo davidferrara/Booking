@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     ListView listview;
     static Event currentItem;
     SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
+    SimpleDateFormat currentDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
     TextView currentDate;
     Date date = new Date();
     Calendar cal;
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         currentDate = findViewById(R.id.currentDate);
 
         //Set the current date in the textView on the main screen
-        currentDate.setText(sdf.format(date));
+        currentDate.setText(currentDateFormat.format(date));
 
 
 
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         final Button previousButton = findViewById(R.id.previousDayButton);
         previousButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            currentDate.setText(sdf.format(getPreviousDate(date)));
+            currentDate.setText(currentDateFormat.format(getPreviousDate(date)));
             }
         });
 
@@ -146,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         final Button nextButton = findViewById(R.id.nextDayButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            currentDate.setText(sdf.format(getNextDate(date)));
+            currentDate.setText(currentDateFormat.format(getNextDate(date)));
             }
         });
 
@@ -200,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         return prevDate;
     }
 
+    //Method to get the next date
     private Date getNextDate(Date d) {
         cal.setTime(d);
         cal.add(Calendar.DAY_OF_MONTH, 1);

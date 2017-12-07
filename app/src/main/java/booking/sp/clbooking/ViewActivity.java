@@ -82,7 +82,7 @@ public class ViewActivity extends AppCompatActivity {
 
         mContext = getApplicationContext();
         mActivity = ViewActivity.this;
-        listview = findViewById(R.id.listView);
+        listview = findViewById(R.id.listView12);
         events = MainActivity.events;
 
         if (events != null) {

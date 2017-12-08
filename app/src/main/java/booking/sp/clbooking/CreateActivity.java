@@ -10,7 +10,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -18,6 +20,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.clover.sdk.util.CloverAccount;
 import com.clover.sdk.v1.BindingException;
@@ -50,7 +53,6 @@ public class CreateActivity extends AppCompatActivity {
     private TimePicker timeStart;
     private DatePicker dateStart;
     private TimePicker timeEnd;
-    private DatePicker dateEnd;
     private TextView nameLabel;
     private EditText nameText;
     private TextView emailLabel;
@@ -58,7 +60,10 @@ public class CreateActivity extends AppCompatActivity {
     private TextView reasonLabel;
     private EditText reasonText;
     private TextView employeeLabel;
+    private TextView locationLabel;
+    private EditText locationText;
     private List<String> employeeArray = new ArrayList<>();
+    private List<String> testArray = new ArrayList<>();
     private Spinner employeeDropDown;
 
     GoogleAccountCredential mCredential = MainActivity.mCredential;
@@ -67,6 +72,8 @@ public class CreateActivity extends AppCompatActivity {
     String nameString;
     String emailString;
     String reasonString = "";
+    String employeeString = "";
+    String locationString;
 
     //Clover variables
     private Account mAccount;
@@ -78,21 +85,38 @@ public class CreateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
 
+        //Assign all fields
         timeStart = findViewById(R.id.timeStart);
         dateStart = findViewById(R.id.dateStart);
         timeEnd = findViewById(R.id.timeEnd);
-        dateEnd = findViewById(R.id.dateEnd);
         nameLabel = findViewById(R.id.nameLabel);
         nameText = findViewById(R.id.nameText);
         emailLabel = findViewById(R.id.emailLabel);
         emailText = findViewById(R.id.emailText);
         reasonLabel = findViewById(R.id.reasonLabel);
         reasonText = findViewById(R.id.reasonText);
+        locationLabel = findViewById(R.id.locationLabel);
+        locationText = findViewById(R.id.locationText);
+
         employeeLabel = findViewById(R.id.employeeLabel);
         employeeDropDown = findViewById(R.id.employeeDropDown);
 
         //Call method to populate Spinner from ArrayList
+        employeeArray.add("Any Available"); //Default, for any employee available.
         addEmployeesToSpinner();
+
+        employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                employeeString = employeeDropDown.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                employeeString = "Any Available";
+            }
+
+        });
 
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -105,15 +129,17 @@ public class CreateActivity extends AppCompatActivity {
                         timeStart.getCurrentMinute(),
                         00);
                 calendarEnd = new GregorianCalendar(
-                        dateEnd.getYear(),
-                        dateEnd.getMonth(),
-                        dateEnd.getDayOfMonth(),
+                        dateStart.getYear(),
+                        dateStart.getMonth(),
+                        dateStart.getDayOfMonth(),
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
                 nameString = nameText.getText().toString();
                 emailString = emailText.getText().toString();
-                reasonString += reasonText.getText().toString();
+                reasonString = reasonText.getText().toString()
+                        + "\nWith employee: " + employeeString;
+                locationString = locationText.getText().toString();
                 new CreateEntryTask(mCredential).execute();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
@@ -183,6 +209,7 @@ public class CreateActivity extends AppCompatActivity {
                 for(Employee employee : employees)
                 {
                     employeeArray.add(employee.getName());
+                    Log.i("Employee Added", "Adding " + employee.getName() + " to the arraylist.");
                 }
 
             }
@@ -192,7 +219,7 @@ public class CreateActivity extends AppCompatActivity {
 
     private void addEmployeesToSpinner()
     {
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, employeeArray);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         employeeDropDown.setAdapter(dataAdapter);
@@ -214,7 +241,7 @@ public class CreateActivity extends AppCompatActivity {
         public Event createEntryTest() throws IOException {
             Event event = new Event()
                     .setSummary(nameString)
-                    .setLocation("Rowan University")
+                    .setLocation(locationString)
                     .setDescription(reasonString);
 
 

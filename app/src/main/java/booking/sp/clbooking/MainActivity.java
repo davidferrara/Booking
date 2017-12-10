@@ -21,8 +21,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -54,8 +58,11 @@ import com.google.api.services.calendar.model.EventReminder;
 import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -65,25 +72,32 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     //region variables
     private Context mContext;
     private Activity mActivity;
+    private Account mAccount;
+    private MerchantConnector mMerchantConnector;
+    SimpleArrayAdapter adapter;
+    ListView listview;
+    static Event currentItem;
+    SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
+    SimpleDateFormat currentDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+    TextView currentDate;
+    Date date = new Date();
+    Calendar cal;
 
     public static GoogleAccountCredential mCredential;
     public static TextView mOutputText;
     private TextView mEmployeeTextView;
-    private Button mCallApiButton;
-    private Button mEditEntriesButton;
-    private Button mViewEntriesButton;
-    private Button mCreateEntryButton;
     ProgressDialog mProgress;
     public static List<Event> events;
 
+    private Spinner employeeSpinner;
+    private EmployeeConnector mEmployeeConnector;
+    private ArrayList<Employee> employees;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    private static final String BUTTON_TEXT = "Call Google Calendar API";
-    private static final String EDITBUTTON_TEXT = "Edit Entry";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
     //endregion
@@ -91,78 +105,50 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Get the application context
+        setContentView(R.layout.activity_main);
+
         mContext = getApplicationContext();
-
-        // Get the activity
         mActivity = MainActivity.this;
+        listview = findViewById(R.id.listView);
+        cal = Calendar.getInstance();  //Gets a calendar using the default time zone and locale.
+        currentDate = findViewById(R.id.currentDate);
 
-        //region Google API UI
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
+        //Set the current date in the textView on the main screen
+        currentDate.setText(currentDateFormat.format(date));
 
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
+
+        if (events != null) {
+            adapter = new MainActivity.SimpleArrayAdapter(this, events);
+            listview.setAdapter(adapter);
+        }
+
+        // When you click on the create button on the main screen, it will start the create activity.
+        final Button createButton = findViewById(R.id.createButton);
+        createButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
-        });
-        activityLayout.addView(mCallApiButton);
-
-        mEditEntriesButton = new Button(this);
-        mEditEntriesButton.setText(EDITBUTTON_TEXT);
-        mEditEntriesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditEntriesButton.setEnabled(false);
-                Intent myIntent = new Intent(mContext, EditActivity.class);
+                Intent myIntent = new Intent(mContext, CreateActivity.class);
                 startActivityForResult(myIntent, 0);
-                mEditEntriesButton.setEnabled(true);
             }
         });
-        activityLayout.addView(mEditEntriesButton);
 
-        mViewEntriesButton = new Button(this);
-        mViewEntriesButton.setText("View Entries");
-        mViewEntriesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
+
+        //Button to change the date back
+        final Button previousButton = findViewById(R.id.previousDayButton);
+        previousButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mViewEntriesButton.setEnabled(false);
-                Intent myIntent = new Intent(mContext, ViewActivity.class);
-                startActivityForResult(myIntent, 0);
-                mViewEntriesButton.setEnabled(true);
+            currentDate.setText(currentDateFormat.format(getPreviousDate(date)));
             }
         });
-        activityLayout.addView(mViewEntriesButton);
 
-        mOutputText = new TextView(this);
-        mOutputText.setLayoutParams(tlp);
-        mOutputText.setPadding(16, 16, 16, 16);
-        mOutputText.setVerticalScrollBarEnabled(true);
-        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(
-                "Click the \'" + BUTTON_TEXT + "\' button to test the API.");
-        activityLayout.addView(mOutputText);
+        //Button to change the date forward
+        final Button nextButton = findViewById(R.id.nextDayButton);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            currentDate.setText(currentDateFormat.format(getNextDate(date)));
+            }
+        });
 
-        mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling Google Calendar API ...");
-
-        setContentView(activityLayout);
-        //setContentView(R.layout.day_layout);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -181,6 +167,222 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         getResultsFromApi();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectEmployee();
+    }
+
+    //Method to get the previous date
+    private Date getPreviousDate(Date d) {
+        cal.setTime(d);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        Date prevDate = cal.getTime();
+        date = prevDate;
+        return prevDate;
+    }
+
+    //Method to get the next date
+    private Date getNextDate(Date d) {
+        cal.setTime(d);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        Date nextDate = cal.getTime();
+        date = nextDate;
+        return nextDate;
+    }
+
+
+    public class SimpleArrayAdapter extends ArrayAdapter<Event> {
+        private final Context context;
+        private final List<Event> values;
+
+        public SimpleArrayAdapter(Context context, List<Event> values) {
+            super(context, -1, values);
+            this.context = context;
+            this.values = values;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final int mPosition = position;
+            final View view = convertView;
+            final AdapterView<?> mParent = (AdapterView<?>) parent;
+
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = null;
+            if (inflater != null) {
+                rowView = inflater.inflate(R.layout.daylayout, parent, false);
+            }
+
+            TextView dayText = rowView.findViewById(R.id.dayText);
+            TextView timeText = rowView.findViewById(R.id.timeText);
+            TextView descriptionText = rowView.findViewById(R.id.descriptionText);
+            Button entryButton = rowView.findViewById(R.id.entryButton);
+            Button reminderButton = rowView.findViewById(R.id.reminderButton);
+            Button deleteButton = rowView.findViewById(R.id.deleteButton);
+
+            Event e = values.get(position);
+            DateTime start = e.getStart().getDateTime();
+            if (start == null) {
+                // All-day events don't have start times, so just use
+                // the start date.
+                start = e.getStart().getDate();
+            }
+            Date sd = new Date(start.getValue());
+            Date ed = new Date(e.getEnd().getDateTime().getValue());
+            //Title of Event.
+            dayText.setText(e.getSummary());
+            //Date and Time of Event.
+            timeText.setText("" + sdf.format(sd) + " - " + sdf.format(ed));
+            //Get the description of the event.
+            descriptionText.setText(e.getDescription());
+            entryButton.setText("Edit Entry");
+            entryButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    currentItem = (Event) mParent.getItemAtPosition(mPosition);
+                    Intent myIntent = new Intent(mContext, EditActivity.class);
+                    startActivityForResult(myIntent, 0);
+                }
+            });
+            reminderButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_EMAIL, new String[]{"recipient@example.com"});
+                    i.putExtra(Intent.EXTRA_SUBJECT, "subject of email");
+                    i.putExtra(Intent.EXTRA_TEXT, "body of email");
+                    try {
+                        startActivity(Intent.createChooser(i, "Send mail..."));
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        Toast.makeText(MainActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+
+                public void onClick(View v) {
+                    final Event item = (Event) mParent.getItemAtPosition(mPosition);
+                    final String itemLabel = item.getSummary();
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Title")
+                            .setMessage("Do you really want to delete " + itemLabel +"?")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    new MainActivity.DeleteEntryTask(mCredential, item).execute();
+                                    values.remove(item);
+                                    adapter.notifyDataSetChanged();
+                                    Toast.makeText(MainActivity.this, itemLabel + " Successfully Deleted", Toast.LENGTH_SHORT).show();
+                                }})
+                            .setNegativeButton(android.R.string.no, null).show();
+                }
+            });
+            return rowView;
+        }
+    }
+
+    private class DeleteEntryTask extends AsyncTask<Void, Void, Event> {
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Event mEvent;
+
+        DeleteEntryTask(GoogleAccountCredential credential, Event event) {
+            mEvent = event;
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        } public Event DeleteEntry() throws IOException {
+
+            String calendarId = "primary";
+            mService.events().delete(calendarId, mEvent.getId()).execute();
+            return mEvent;
+        }
+
+        /**
+         * Background task to call Google Calendar API.
+         *
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected Event doInBackground(Void... params) {
+            try {
+                return DeleteEntry();
+            } catch (Exception e) {
+                cancel(true);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onCancelled() {
+        }
+
+    }
+
+
+
+
+    private void connect() {
+        disconnect();
+        Log.i("test", "Connecting...");
+        if (mAccount != null) {
+            Log.i("test", "Account is not null");
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, this);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnect() {   //remember to disconnect!
+        Log.i("test", "Disconnecting...");
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    private void getEmployee() {
+        // Show progressBar while waiting
+        //progressBar.setVisibility(View.VISIBLE);
+
+        mEmployeeConnector.getEmployee(new EmployeeConnector.EmployeeCallback<Employee>() {
+            @Override
+            public void onServiceSuccess(Employee result, ResultStatus status) {
+                super.onServiceSuccess(result, status);
+
+                // Hide the progressBar
+                //progressBar.setVisibility(View.GONE);
+
+                mEmployeeTextView.setText(result.getName());
+                Log.i("name test", result.getName());
+               // role.setText(result.getRole().toString());
+            }
+        });
+    }
+
+    private void connectEmployee() {
+        disconnectEmployee();
+
+        if (mAccount != null) {
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnectEmployee() {
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
 
     /*private class EmployeeAsyncTask extends AsyncTask<Object, Object, Employee> {
 
@@ -233,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            mOutputText.setText("No network connection available.");
+            //mOutputText.setText("No network connection available.");
         } else {
             new MakeRequestTask(mCredential).execute();
         }
@@ -588,44 +790,44 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
 
         @Override
         protected void onPreExecute() {
-            mOutputText.setText("");
-            mProgress.show();
+            //mOutputText.setText("");
+            //mProgress.show();
         }
 
         @Override
         protected void onPostExecute(List<Event> output) {
-            mProgress.hide();
-            if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
-            } else {
-                List<String> list = new ArrayList<>();
-                for (Event event: output) {
-                    list.add(event.toString()+"\n");
-                }
-                mOutputText.setText(TextUtils.join("\n", list));
-                events = output;
-            }
+            //mProgress.hide();
+            //if (output == null || output.size() == 0) {
+            //    mOutputText.setText("No results returned.");
+            //} else {
+            //    List<String> list = new ArrayList<>();
+            //    for (Event event: output) {
+            //        list.add(event.toString()+"\n");
+            //    }
+            //    mOutputText.setText(TextUtils.join("\n", list));
+            //    events = output;
+            //}
         }
 
         @Override
         protected void onCancelled() {
-            mProgress.hide();
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
-                } else {
-                    mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
-                }
-            } else {
-                mOutputText.setText("Request cancelled.");
-            }
+            //mProgress.hide();
+            //if (mLastError != null) {
+            //    if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+            //        showGooglePlayServicesAvailabilityErrorDialog(
+            //                ((GooglePlayServicesAvailabilityIOException) mLastError)
+            //                        .getConnectionStatusCode());
+            //    } else if (mLastError instanceof UserRecoverableAuthIOException) {
+            //        startActivityForResult(
+            //                ((UserRecoverableAuthIOException) mLastError).getIntent(),
+            //                MainActivity.REQUEST_AUTHORIZATION);
+            //    } else {
+            //        mOutputText.setText("The following error occurred:\n"
+            //                + mLastError.getMessage());
+            //    }
+            //} else {
+            //    mOutputText.setText("Request cancelled.");
+            //}
         }
     }
 

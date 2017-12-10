@@ -40,7 +40,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import static booking.sp.clbooking.ViewActivity.currentItem;
+import static booking.sp.clbooking.MainActivity.currentItem;
 
 public class EditActivity extends AppCompatActivity {
     private TimePicker timeStart;

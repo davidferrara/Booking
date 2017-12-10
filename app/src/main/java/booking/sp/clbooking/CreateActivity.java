@@ -4,17 +4,30 @@ package booking.sp.clbooking;
  * Created by Ty on 11/5/2017.
  */
 
+import android.accounts.Account;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.clover.sdk.util.CloverAccount;
+import com.clover.sdk.v1.BindingException;
+import com.clover.sdk.v1.ClientException;
+import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v3.employees.Employee;
+import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -40,20 +53,31 @@ public class CreateActivity extends AppCompatActivity {
     private TimePicker timeStart;
     private DatePicker dateStart;
     private TimePicker timeEnd;
-    private DatePicker dateEnd;
     private TextView nameLabel;
     private EditText nameText;
     private TextView emailLabel;
     private EditText emailText;
     private TextView reasonLabel;
     private EditText reasonText;
+    private TextView employeeLabel;
+    private TextView locationLabel;
+    private EditText locationText;
+    private List<String> employeeArray = new ArrayList<>();
+    private List<String> testArray = new ArrayList<>();
+    private Spinner employeeDropDown;
 
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
     Calendar calendarEnd;
     String nameString;
     String emailString;
-    String reasonString;
+    String reasonString = "";
+    String employeeString = "";
+    String locationString;
+
+    //Clover variables
+    private Account mAccount;
+    private EmployeeConnector mEmployeeConnector;
 
 
     @Override
@@ -61,16 +85,38 @@ public class CreateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
 
+        //Assign all fields
         timeStart = findViewById(R.id.timeStart);
         dateStart = findViewById(R.id.dateStart);
         timeEnd = findViewById(R.id.timeEnd);
-        dateEnd = findViewById(R.id.dateEnd);
         nameLabel = findViewById(R.id.nameLabel);
         nameText = findViewById(R.id.nameText);
         emailLabel = findViewById(R.id.emailLabel);
         emailText = findViewById(R.id.emailText);
         reasonLabel = findViewById(R.id.reasonLabel);
         reasonText = findViewById(R.id.reasonText);
+        locationLabel = findViewById(R.id.locationLabel);
+        locationText = findViewById(R.id.locationText);
+
+        employeeLabel = findViewById(R.id.employeeLabel);
+        employeeDropDown = findViewById(R.id.employeeDropDown);
+
+        //Call method to populate Spinner from ArrayList
+        employeeArray.add("Any Available"); //Default, for any employee available.
+        addEmployeesToSpinner();
+
+        employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                employeeString = employeeDropDown.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                employeeString = "Any Available";
+            }
+
+        });
 
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -83,21 +129,100 @@ public class CreateActivity extends AppCompatActivity {
                         timeStart.getCurrentMinute(),
                         00);
                 calendarEnd = new GregorianCalendar(
-                        dateEnd.getYear(),
-                        dateEnd.getMonth(),
-                        dateEnd.getDayOfMonth(),
+                        dateStart.getYear(),
+                        dateStart.getMonth(),
+                        dateStart.getDayOfMonth(),
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
                 nameString = nameText.getText().toString();
                 emailString = emailText.getText().toString();
-                reasonString = reasonText.getText().toString();
+                reasonString = reasonText.getText().toString()
+                        + "\nWith employee: " + employeeString;
+                locationString = locationText.getText().toString();
                 new CreateEntryTask(mCredential).execute();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //Retrieve Clover account
+        if (mAccount == null) {
+            mAccount = CloverAccount.getAccount(this);
+
+            if (mAccount == null) {
+                return;
+            }
+        }
+
+        connectEmployee();
+
+        new EmployeeAsyncTask().execute();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectEmployee();
+    }
+
+
+    private void connectEmployee() {
+        disconnectEmployee();
+
+        if (mAccount != null) {
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnectEmployee() {
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    private class EmployeeAsyncTask extends AsyncTask<Object, Object, List<Employee>> {
+
+        @Override
+        protected List<Employee> doInBackground(Object... voids) {
+            try {
+                return mEmployeeConnector.getEmployees();
+            } catch (RemoteException | ClientException | ServiceException | BindingException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected final void onPostExecute(List<Employee> employees) {
+            super.onPostExecute(employees);
+            if (employees != null) {
+                for(Employee employee : employees)
+                {
+                    employeeArray.add(employee.getName());
+                    Log.i("Employee Added", "Adding " + employee.getName() + " to the arraylist.");
+                }
+
+            }
+        }
+
+    }
+
+    private void addEmployeesToSpinner()
+    {
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, employeeArray);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        employeeDropDown.setAdapter(dataAdapter);
     }
 
     private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
@@ -116,14 +241,14 @@ public class CreateActivity extends AppCompatActivity {
         public Event createEntryTest() throws IOException {
             Event event = new Event()
                     .setSummary(nameString)
-                    .setLocation("Rowan University")
+                    .setLocation(locationString)
                     .setDescription(reasonString);
 
 
             DateTime startDateTime = new DateTime(calendarStart.getTime());
             EventDateTime start = new EventDateTime()
                     .setDateTime(startDateTime);
-                    //.setTimeZone(TimeZone.getDefault().toString());
+            //.setTimeZone(TimeZone.getDefault().toString());
             //text.setText(""+(TimeZone.getDefault()));
             event.setStart(start);
 
@@ -187,7 +312,7 @@ public class CreateActivity extends AppCompatActivity {
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
                     //text.setText("The following error occurred:\n"
-                           // + mLastError.getMessage());
+                    // + mLastError.getMessage());
                 }
             } else {
                 //text.setText("Request cancelled.");

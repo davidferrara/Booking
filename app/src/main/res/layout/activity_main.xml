@@ -10,44 +10,51 @@
     tools:context="booking.sp.clbooking.MainActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/previousDayButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Previous" />
+            android:text="Previous"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/currentDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Current Date Goes Here" />
+            android:text="Current Date Goes Here"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/nextDayButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Next" />
+            android:text="Next"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="wrap_content"
-        android:layout_height="500dp" />
+        android:layout_height="510dp" />
 
     <Button
         android:id="@+id/createButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
         android:layout_weight="1"
-        android:text="Create" />
+        android:text="Create"
+        android:textSize="18sp" />
 
 </LinearLayout>

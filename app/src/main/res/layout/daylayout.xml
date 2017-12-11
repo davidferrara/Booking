@@ -37,6 +37,7 @@
         app:layout_constraintStart_toEndOf="@+id/dayText"
         app:layout_constraintTop_toBottomOf="parent" />
 
+<<<<<<< HEAD
 
     <Button
         android:id="@+id/entryButton"
@@ -45,10 +46,32 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="12dp"
         android:text="entryButton"
+=======
+    <TextView
+        android:id="@+id/employeeText"
+        android:layout_width="178dp"
+        android:layout_height="116dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        android:text="employeeText"
+>>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
         app:layout_constraintStart_toEndOf="@+id/descriptionText"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+<<<<<<< HEAD
+=======
+        android:id="@+id/entryButton"
+        android:layout_width="220dp"
+        android:layout_height="116dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:text="entryButton"
+        app:layout_constraintStart_toEndOf="@+id/employeeText"
         app:layout_constraintTop_toBottomOf="parent" />
 
     <Button
+>>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
         android:id="@+id/deleteButton"
         android:layout_width="220dp"
         android:layout_height="116dp"

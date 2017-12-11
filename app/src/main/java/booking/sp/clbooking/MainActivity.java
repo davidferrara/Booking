@@ -169,14 +169,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             }
         }
 
-<<<<<<< HEAD
-=======
-        // Create and Connect to the EmployeeConnector
-        connect();
-
-        // Get the employee object
-        getEmployee();
->>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
 
         //Get API results (events)
         getResultsFromApi();
@@ -185,10 +177,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-<<<<<<< HEAD
-=======
-        disconnectEmployee();
->>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
     }
 
     //Method to get the previous date
@@ -227,288 +215,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         getResultsFromApi();
     }
 
-<<<<<<< HEAD
     @Override
     public void onServiceConnected(ServiceConnector<? extends IInterface> connector) {
-=======
-    public class SimpleArrayAdapter extends ArrayAdapter<Event> {
-        private final Context context;
-        private final List<Event> values;
-
-        public SimpleArrayAdapter(Context context, List<Event> values) {
-            super(context, -1, values);
-            this.context = context;
-            this.values = values;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final int mPosition = position;
-            final View view = convertView;
-            final AdapterView<?> mParent = (AdapterView<?>) parent;
-
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = null;
-            if (inflater != null) {
-                rowView = inflater.inflate(R.layout.daylayout, parent, false);
-            }
-
-            TextView dayText = rowView.findViewById(R.id.dayText);
-            TextView timeText = rowView.findViewById(R.id.timeText);
-            TextView descriptionText = rowView.findViewById(R.id.descriptionText);
-            Button entryButton = rowView.findViewById(R.id.entryButton);
-            TextView employeeText = rowView.findViewById(R.id.employeeText);
-            Button deleteButton = rowView.findViewById(R.id.deleteButton);
-
-            Event e = values.get(position);
-            DateTime start = e.getStart().getDateTime();
-            if (start == null) {
-                // All-day events don't have start times, so just use
-                // the start date.
-                start = e.getStart().getDate();
-            }
-            Date sd = new Date(start.getValue());
-            Date ed = new Date(e.getEnd().getDateTime().getValue());
-            //Title of Event.
-            dayText.setText(e.getSummary());
-            //Date and Time of Event.
-            timeText.setText("" + sdf.format(sd) + " - " + sdf.format(ed));
-            //Get the description of the event.
-            descriptionText.setText(e.getDescription());
-            entryButton.setText("Edit Entry");
-            entryButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    currentItem = (Event) mParent.getItemAtPosition(mPosition);
-                    Intent myIntent = new Intent(mContext, EditActivity.class);
-                    startActivityForResult(myIntent, 0);
-                }
-            });
-
-
-            deleteButton.setOnClickListener(new View.OnClickListener() {
-
-                public void onClick(View v) {
-                    final Event item = (Event) mParent.getItemAtPosition(mPosition);
-                    final String itemLabel = item.getSummary();
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Title")
-                            .setMessage("Do you really want to delete " + itemLabel +"?")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    new MainActivity.DeleteEntryTask(mCredential, item).execute();
-                                    values.remove(item);
-                                    adapter.notifyDataSetChanged();
-                                    Toast.makeText(MainActivity.this, itemLabel + " Successfully Deleted", Toast.LENGTH_SHORT).show();
-                                }})
-                            .setNegativeButton(android.R.string.no, null).show();
-                }
-            });
-            return rowView;
-        }
-    }
-
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<Event>> {
-        private com.google.api.services.calendar.Calendar mService = null;
-        private Exception mLastError = null;
-
-        MakeRequestTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
-                    .build();
-        }
-
-        /**
-         * Background task to call Google Calendar API.
-         *
-         * @param params no parameters needed for this task.
-         */
-        @Override
-        protected List<Event> doInBackground(Void... params) {
-            try {
-                return getDataFromApi();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        /**
-         * Fetch a list of the next 10 events from the primary calendar.
-         *
-         * @return List of Strings describing returned events.
-         * @throws IOException
-         */
-        private List<Event> getDataFromApi() throws IOException {
-            DateTime start = new DateTime(calendarstart.getTime().getTime());
-            DateTime end = new DateTime(calendarend.getTime().getTime());
-            Events events = mService.events().list("primary")
-                    .setMaxResults(100)
-                    .setTimeMin(start)
-                    .setTimeMax(end)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            return events.getItems();
-        }
-
-
-        @Override
-        protected void onPreExecute() {
-            //mOutputText.setText("");
-            //mProgress.show();
-        }
-
-        @Override
-        protected void onPostExecute(List<Event> output) {
-            //mProgress.hide();
-            //if (output == null || output.size() == 0) {
-                //    mOutputText.setText("No results returned.");
-            //} else {
-                //    List<String> list = new ArrayList<>();
-                //    for (Event event: output) {
-                //        list.add(event.toString()+"\n");
-                //    }
-                //    mOutputText.setText(TextUtils.join("\n", list));
-                events = output;
-            if (events != null) {
-                listview.setVisibility(View.VISIBLE);
-                adapter = new SimpleArrayAdapter(MainActivity.this, events);
-                listview.setAdapter(adapter);
-            }
-            else{
-                listview.setVisibility(View.INVISIBLE);
-                //set empty screen
-            }
-            //}
-        }
-
-        @Override
-        protected void onCancelled() {
-            //mProgress.hide();
-            //if (mLastError != null) {
-            //    if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-            //        showGooglePlayServicesAvailabilityErrorDialog(
-            //                ((GooglePlayServicesAvailabilityIOException) mLastError)
-            //                        .getConnectionStatusCode());
-            //    } else if (mLastError instanceof UserRecoverableAuthIOException) {
-            //        startActivityForResult(
-            //                ((UserRecoverableAuthIOException) mLastError).getIntent(),
-            //                MainActivity.REQUEST_AUTHORIZATION);
-            //    } else {
-            //        mOutputText.setText("The following error occurred:\n"
-            //                + mLastError.getMessage());
-            //    }
-            //} else {
-            //    mOutputText.setText("Request cancelled.");
-            //}
-        }
-    }
-
-    private class DeleteEntryTask extends AsyncTask<Void, Void, Event> {
-        private com.google.api.services.calendar.Calendar mService = null;
-        private Event mEvent;
-
-        DeleteEntryTask(GoogleAccountCredential credential, Event event) {
-            mEvent = event;
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
-                    .build();
-        } public Event DeleteEntry() throws IOException {
-
-            String calendarId = "primary";
-            mService.events().delete(calendarId, mEvent.getId()).execute();
-            return mEvent;
-        }
-
-        /**
-         * Background task to call Google Calendar API.
-         *
-         * @param params no parameters needed for this task.
-         */
-        @Override
-        protected Event doInBackground(Void... params) {
-            try {
-                return DeleteEntry();
-            } catch (Exception e) {
-                cancel(true);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onCancelled() {
-        }
-
-    }
-
-    //region Employee methods
-    private void connect() {
-        disconnect();
-        Log.i("test", "Connecting...");
-        if (mAccount != null) {
-            Log.i("test", "Account is not null");
-            mEmployeeConnector = new EmployeeConnector(this, mAccount, this);
-            mEmployeeConnector.connect();
-        }
-    }
-
-    private void disconnect() {   //remember to disconnect!
-        Log.i("test", "Disconnecting...");
-        if (mEmployeeConnector != null) {
-            mEmployeeConnector.disconnect();
-            mEmployeeConnector = null;
-        }
-    }
-
-    private void getEmployee() {
-        // Show progressBar while waiting
-        //progressBar.setVisibility(View.VISIBLE);
-
-        mEmployeeConnector.getEmployee(new EmployeeConnector.EmployeeCallback<Employee>() {
-            @Override
-            public void onServiceSuccess(Employee result, ResultStatus status) {
-                super.onServiceSuccess(result, status);
-
-                // Hide the progressBar
-                //progressBar.setVisibility(View.GONE);
-
-                mEmployeeTextView.setText(result.getName());
-                Log.i("name test", result.getName());
-               // role.setText(result.getRole().toString());
-            }
-        });
-    }
-
-    private void connectEmployee() {
-        disconnectEmployee();
-
-        if (mAccount != null) {
-            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
-            mEmployeeConnector.connect();
-        }
-    }
-
-    private void disconnectEmployee() {
-        if (mEmployeeConnector != null) {
-            mEmployeeConnector.disconnect();
-            mEmployeeConnector = null;
-        }
-    }
->>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
 
     }
 
@@ -648,19 +356,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             return events.getItems();
         }
 
-<<<<<<< HEAD
-=======
-    @Override
-    public void onActiveEmployeeChanged(Employee employee) {
-        Log.i("test", "Employee change!");
-        if (employee != null) {
-            mEmployeeTextView.setText(employee.getName());
-        }
-    }
-
-    @Override
-    public void onServiceConnected(ServiceConnector<? extends IInterface> serviceConnector) {
->>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
 
         @Override
         protected void onPreExecute() {
@@ -758,42 +453,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
 
     }
 
-/*
-    private void connectEmployees() {
-        disconnectEmployees();
-
-        if (mAccount != null ) {
-            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
-            mEmployeeConnector.connect();
-            employees = mEmployeev;
-            Connector.getEmployees();
-        }
-    }
-
-    private void disconnectEmployees() {
-        if (mEmployeeConnector != null) {
-            mEmployeeConnector.disconnect();
-            mEmployeeConnector = null;
-        }
-    }
-
-<<<<<<< HEAD
 
 
-=======
-    public void addItemsOnEmployeeSpinner() {
 
-        employeeSpinner = (Spinner) findViewById(R.id.employeeSpinner);
-        List<String> list = new ArrayList<String>();
-        for(Employee e : employees){
-            list.add(e.getName());
-        }
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        employeeSpinner.setAdapter(dataAdapter);
-    */
->>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
 
 //endregion
     //region Google Calendar API Methods

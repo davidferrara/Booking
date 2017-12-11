@@ -100,7 +100,6 @@
             android:layout_marginLeft="0dp"
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
-<<<<<<< HEAD
 
             <TextView
                 android:id="@+id/locationLabel"
@@ -119,26 +118,6 @@
                 android:inputType="text"
                 android:textSize="20sp" />
 
-=======
-
-            <TextView
-                android:id="@+id/locationLabel"
-                android:layout_width="273dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="30dp"
-                android:text="Location:"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/locationText"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="text"
-                android:textSize="20sp" />
-
->>>>>>> acb5ceeec992096376ac63ac578a76cc4aac6760
 
         </LinearLayout>
 

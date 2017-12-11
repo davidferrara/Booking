@@ -4,24 +4,36 @@ package booking.sp.clbooking;
  * Created by Ty on 11/5/2017.
  */
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.clover.sdk.util.CloverAccount;
+import com.clover.sdk.v1.BindingException;
+import com.clover.sdk.v1.ClientException;
+import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v3.employees.Employee;
+import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -35,37 +47,83 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
-import static booking.sp.clbooking.ViewActivity.currentItem;
+import static booking.sp.clbooking.MainActivity.currentItem;
 
 public class EditActivity extends AppCompatActivity {
     private TimePicker timeStart;
     private DatePicker dateStart;
     private TimePicker timeEnd;
-    private DatePicker dateEnd;
+    private TextView nameLabel;
+    private EditText nameText;
+    private TextView emailLabel;
     private EditText emailText;
+    private TextView reasonLabel;
+    private EditText reasonText;
+    private TextView employeeLabel;
+    private TextView locationLabel;
+    private EditText locationText;
+    private List<String> employeeArray = new ArrayList<>();
+    private List<String> testArray = new ArrayList<>();
+    private Spinner employeeDropDown;
+
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
     Calendar calendarEnd;
+    String nameString;
+    String emailString;
+    String reasonString = "";
+    String employeeString = "";
+    String locationString;
+
+    //Clover variables
+    private Account mAccount;
+    private EmployeeConnector mEmployeeConnector;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit);
+        setContentView(R.layout.activity_create);
 
+        //Assign all fields
         timeStart = findViewById(R.id.timeStart);
         dateStart = findViewById(R.id.dateStart);
         timeEnd = findViewById(R.id.timeEnd);
-        dateEnd = findViewById(R.id.dateEnd);
+        nameLabel = findViewById(R.id.nameLabel);
+        nameText = findViewById(R.id.nameText);
+        emailLabel = findViewById(R.id.emailLabel);
         emailText = findViewById(R.id.emailText);
+        reasonLabel = findViewById(R.id.reasonLabel);
+        reasonText = findViewById(R.id.reasonText);
+        locationLabel = findViewById(R.id.locationLabel);
+        locationText = findViewById(R.id.locationText);
 
-        //get event and set the ui to the event values
-        new EditActivity.GetEntryTask(mCredential).execute();
+        employeeLabel = findViewById(R.id.employeeLabel);
+        employeeDropDown = findViewById(R.id.employeeDropDown);
+
+        //Call method to populate Spinner from ArrayList
+        employeeArray.add("Any Available"); //Default, for any employee available.
+        addEmployeesToSpinner();
+
+        employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                employeeString = employeeDropDown.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                employeeString = "Any Available";
+            }
+
+        });
 
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -78,18 +136,100 @@ public class EditActivity extends AppCompatActivity {
                         timeStart.getCurrentMinute(),
                         00);
                 calendarEnd = new GregorianCalendar(
-                        dateEnd.getYear(),
-                        dateEnd.getMonth(),
-                        dateEnd.getDayOfMonth(),
+                        dateStart.getYear(),
+                        dateStart.getMonth(),
+                        dateStart.getDayOfMonth(),
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
+                nameString = nameText.getText().toString();
+                emailString = emailText.getText().toString();
+                reasonString = reasonText.getText().toString()
+                        + "\nWith employee: " + employeeString;
+                locationString = locationText.getText().toString();
                 new EditActivity.EditEntryTask(mCredential).execute();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //Retrieve Clover account
+        if (mAccount == null) {
+            mAccount = CloverAccount.getAccount(this);
+
+            if (mAccount == null) {
+                return;
+            }
+        }
+
+        connectEmployee();
+
+        new EditActivity.EmployeeAsyncTask().execute();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectEmployee();
+    }
+
+
+    private void connectEmployee() {
+        disconnectEmployee();
+
+        if (mAccount != null) {
+            mEmployeeConnector = new EmployeeConnector(this, mAccount, null);
+            mEmployeeConnector.connect();
+        }
+    }
+
+    private void disconnectEmployee() {
+        if (mEmployeeConnector != null) {
+            mEmployeeConnector.disconnect();
+            mEmployeeConnector = null;
+        }
+    }
+
+    private class EmployeeAsyncTask extends AsyncTask<Object, Object, List<Employee>> {
+
+        @Override
+        protected List<Employee> doInBackground(Object... voids) {
+            try {
+                return mEmployeeConnector.getEmployees();
+            } catch (RemoteException | ClientException | ServiceException | BindingException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected final void onPostExecute(List<Employee> employees) {
+            super.onPostExecute(employees);
+            if (employees != null) {
+                for(Employee employee : employees)
+                {
+                    employeeArray.add(employee.getName());
+                    Log.i("Employee Added", "Adding " + employee.getName() + " to the arraylist.");
+                }
+
+            }
+        }
+
+    }
+
+    private void addEmployeesToSpinner()
+    {
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, employeeArray);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        employeeDropDown.setAdapter(dataAdapter);
     }
 
     private class EditEntryTask extends AsyncTask<Void, Void, Event> {
@@ -123,6 +263,9 @@ public class EditActivity extends AppCompatActivity {
             EventDateTime end = new EventDateTime()
                     .setDateTime(endDateTime);
             event.setEnd(end);
+            event.setSummary(nameString)
+                    .setLocation(locationString)
+                    .setDescription(reasonString);
 
             // Update the event
             Event updatedEvent = mService.events().update("primary", event.getId(), event).execute();
@@ -233,7 +376,7 @@ public class EditActivity extends AppCompatActivity {
             final int hourE = calE.get(Calendar.HOUR_OF_DAY);
             timeEnd.setCurrentHour(hourE);
             timeEnd.setCurrentMinute(minuteE);
-            dateEnd.updateDate(calE.get(Calendar.YEAR), calE.get(Calendar.MONTH), calE.get(Calendar.DAY_OF_MONTH));
+            dateStart.updateDate(calE.get(Calendar.YEAR), calE.get(Calendar.MONTH), calE.get(Calendar.DAY_OF_MONTH));
 
             if (output == null) {
                 //text.setText("Event is null");

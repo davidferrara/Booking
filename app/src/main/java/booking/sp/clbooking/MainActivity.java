@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         });
 
         //Button to change the date back
-        final Button previousButton = findViewById(R.id.previousDayButton);
+        final ImageButton previousButton = findViewById(R.id.previousDayButton);
         previousButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             previousDate(date);
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         });
 
         //Button to change the date forward
-        final Button nextButton = findViewById(R.id.nextDayButton);
+        final ImageButton nextButton = findViewById(R.id.nextDayButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 nextDate(date);

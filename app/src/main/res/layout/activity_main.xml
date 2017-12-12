@@ -15,12 +15,12 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/previousDayButton"
             android:layout_width="wrap_content"
             android:layout_height="67dp"
             android:layout_weight="1"
-            android:text="Previous"
+            android:src="@drawable/back_arrow"
             android:textSize="18sp" />
 
         <TextView
@@ -34,12 +34,12 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <Button
+        <ImageButton
             android:id="@+id/nextDayButton"
             android:layout_width="wrap_content"
             android:layout_height="67dp"
             android:layout_weight="1"
-            android:text="Next"
+            android:src="@drawable/next_arrow"
             android:textSize="18sp" />
 
     </LinearLayout>

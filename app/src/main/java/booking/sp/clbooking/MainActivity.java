@@ -275,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             timeText.setText("" + sdf.format(sd) + " - " + sdf.format(ed));
             //Get the description of the event.
             descriptionText.setText(e.getDescription());
-            //entryButton.setText("Edit Entry");
             entryButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     currentItem = (Event) mParent.getItemAtPosition(mPosition);

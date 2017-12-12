@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             TextView dayText = rowView.findViewById(R.id.dayText);
             TextView timeText = rowView.findViewById(R.id.timeText);
             TextView descriptionText = rowView.findViewById(R.id.descriptionText);
-            Button entryButton = rowView.findViewById(R.id.entryButton);
+            ImageButton entryButton = rowView.findViewById(R.id.entryButton);
             ImageButton deleteButton = rowView.findViewById(R.id.deleteButton);
 
             Event e = values.get(position);
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             timeText.setText("" + sdf.format(sd) + " - " + sdf.format(ed));
             //Get the description of the event.
             descriptionText.setText(e.getDescription());
-            entryButton.setText("Edit Entry");
+            //entryButton.setText("Edit Entry");
             entryButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     currentItem = (Event) mParent.getItemAtPosition(mPosition);

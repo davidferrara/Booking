@@ -28,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -257,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
             TextView timeText = rowView.findViewById(R.id.timeText);
             TextView descriptionText = rowView.findViewById(R.id.descriptionText);
             Button entryButton = rowView.findViewById(R.id.entryButton);
-            Button deleteButton = rowView.findViewById(R.id.deleteButton);
+            ImageButton deleteButton = rowView.findViewById(R.id.deleteButton);
 
             Event e = values.get(position);
             DateTime start = e.getStart().getDateTime();

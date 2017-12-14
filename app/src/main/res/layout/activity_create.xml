@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ScrollView01"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"  >
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,8 +24,12 @@
 
             <TextView
                 android:id="@+id/nameLabel"
-                android:layout_width="300dp"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="15dp"
+                android:ems="10"
+                android:textColor="#1565C0"
                 android:text="Customer:"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -33,8 +37,11 @@
 
             <Spinner
                 android:id="@+id/customerDropDown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="15dp"
+                android:ems="10" />
 
         </LinearLayout>
 
@@ -48,9 +55,12 @@
 
             <TextView
                 android:id="@+id/reasonLabel"
-                android:layout_width="273dp"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="30dp"
+                android:layout_gravity="right"
+                android:layout_marginRight="15dp"
+                android:ems="10"
+                android:textColor="#1565C0"
                 android:text="Description:"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -58,9 +68,12 @@
 
             <EditText
                 android:id="@+id/reasonText"
-                android:layout_width="300dp"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="15dp"
                 android:ems="10"
+                android:textColor="#000000"
                 android:inputType="text"
                 android:textSize="20sp" />
 
@@ -75,18 +88,24 @@
 
             <TextView
                 android:id="@+id/locationLabel"
-                android:layout_width="273dp"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="30dp"
+                android:layout_gravity="right"
+                android:layout_marginRight="15dp"
+                android:ems="10"
+                android:textColor="#1565C0"
                 android:text="Location:"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/locationText"
-                android:layout_width="300dp"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="15dp"
                 android:ems="10"
+                android:textColor="#000000"
                 android:inputType="text"
                 android:textSize="20sp" />
 
@@ -98,82 +117,96 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/employeeLabel"
-                android:layout_width="347dp"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="15dp"
+                android:ems="10"
+                android:textColor="#1565C0"
                 android:text="Employee Name:"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
             <Spinner
                 android:id="@+id/employeeDropDown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="15dp"
+                android:ems="10" />
 
-            <Button
-                android:id="@+id/saveButton"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginLeft="20dp"
-                android:text="Create Entry" />
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/dateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:ems="10"
+            android:text="Date:"
+            android:textColor="#1565C0"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
+        <DatePicker
+            android:id="@+id/dateStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:endYear="2018"
+            android:paddingLeft="30dp"
+            android:startYear="2017"
+            android:calendarViewShown="false"/>
 
-            <TextView
-                android:id="@+id/dateLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date:"
-                android:textColor="@android:color/holo_green_dark"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/timeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:ems="10"
+            android:text="Time:"
+            android:textColor="#1565C0"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
-            <DatePicker
-                android:id="@+id/dateStart"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:endYear="2018"
-                android:paddingLeft="30dp"
-                android:startYear="2017"
-                android:calendarViewShown="false"/>
+        <TimePicker
+            android:id="@+id/timeStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/timeLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="Time:"
-                android:textColor="@android:color/holo_green_dark"
-                android:textSize="30sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/toLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="to"
+            android:textColor="#42A5F5"
+            android:textSize="30sp"
+            android:textStyle="bold|italic" />
 
-            <TimePicker
-                android:id="@+id/timeStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
+        <TimePicker
+            android:id="@+id/timeEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="20dp" />
 
-            <TextView
-                android:id="@+id/toLabel"
-                android:layout_width="75dp"
-                android:layout_height="261dp"
-                android:gravity="center"
-                android:text="to"
-                android:textColor="@android:color/holo_green_dark"
-                android:textSize="30sp"
-                android:textStyle="bold|italic" />
-
-            <TimePicker
-                android:id="@+id/timeEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="200dp"
+            android:layout_height="67dp"
+            android:layout_marginBottom="20dp"
+            android:text="Create Entry"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:background="#0D47A1"/>
 
 
 

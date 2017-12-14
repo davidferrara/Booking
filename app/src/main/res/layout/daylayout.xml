@@ -14,9 +14,10 @@
         android:layout_height="100dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
-        android:background="#A0A0A0"
+        android:background="#E3F2FD"
         android:text="dayText"
         android:textSize="18sp"
+        android:textColor="#000000"
         android:textStyle="bold" />
 
     <TextView
@@ -27,22 +28,24 @@
         android:layout_marginBottom="10dp"
         android:text="timeText"
         android:textSize="18sp"
-        android:background="#A0A0A0" />
+        android:textColor="#000000"
+        android:background="#E3F2FD" />
 
     <TextView
         android:id="@+id/descriptionText"
-        android:layout_width="290dp"
+        android:layout_width="600dp"
         android:layout_height="100dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
         android:text="descriptionText"
         android:textSize="18sp"
-        android:background="#A0A0A0" />
+        android:textColor="#000000"
+        android:background="#E3F2FD" />
 
     <ImageButton
         android:id="@+id/entryButton"
         android:layout_width="100dp"
-        android:layout_height="67dp"
+        android:layout_height="100dp"
         android:layout_marginStart="10dp"
         android:background="#0D47A1"
         android:src="@drawable/edit" />
@@ -50,7 +53,7 @@
     <ImageButton
         android:id="@+id/deleteButton"
         android:layout_width="100dp"
-        android:layout_height="67dp"
+        android:layout_height="100dp"
         android:layout_marginStart="10dp"
         android:background="#0D47A1"
         android:src="@drawable/trash" />

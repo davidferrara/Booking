@@ -13,6 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -25,13 +27,13 @@
 
         <TextView
             android:id="@+id/currentDate"
-            android:layout_width="235dp"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:text="Current Date Goes Here"
             android:textAlignment="center"
             android:textAllCaps="true"
-            android:textColor="#42A5F5"
-            android:textSize="20sp"
+            android:textColor="#1565C0"
+            android:textSize="30sp"
             android:textStyle="bold" />
 
         <ImageButton
@@ -46,7 +48,7 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="wrap_content"
-        android:layout_height="550dp" />
+        android:layout_height="520dp" />
 
     <Button
         android:id="@+id/createButton"

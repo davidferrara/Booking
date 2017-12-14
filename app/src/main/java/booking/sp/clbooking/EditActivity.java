@@ -32,6 +32,7 @@ import com.clover.sdk.util.CloverAccount;
 import com.clover.sdk.v1.BindingException;
 import com.clover.sdk.v1.ClientException;
 import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v1.customer.Customer;
 import com.clover.sdk.v3.employees.Employee;
 import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -61,9 +62,7 @@ public class EditActivity extends AppCompatActivity {
     private DatePicker dateStart;
     private TimePicker timeEnd;
     private TextView nameLabel;
-    private EditText nameText;
     private TextView emailLabel;
-    private EditText emailText;
     private TextView reasonLabel;
     private EditText reasonText;
     private TextView employeeLabel;
@@ -72,6 +71,8 @@ public class EditActivity extends AppCompatActivity {
     private List<String> employeeArray = new ArrayList<>();
     private List<String> testArray = new ArrayList<>();
     private Spinner employeeDropDown;
+    private Spinner customerDropDown;
+    private List<CreateActivity.CustomerSpinner> customerSpinners = new ArrayList<>();
 
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
@@ -81,6 +82,8 @@ public class EditActivity extends AppCompatActivity {
     String reasonString = "";
     String employeeString = "";
     String locationString;
+    String tempReasonString;
+    String[] tempReasonArray;
 
     //Clover variables
     private Account mAccount;
@@ -97,9 +100,6 @@ public class EditActivity extends AppCompatActivity {
         dateStart = findViewById(R.id.dateStart);
         timeEnd = findViewById(R.id.timeEnd);
         nameLabel = findViewById(R.id.nameLabel);
-        nameText = findViewById(R.id.nameText);
-        emailLabel = findViewById(R.id.emailLabel);
-        emailText = findViewById(R.id.emailText);
         reasonLabel = findViewById(R.id.reasonLabel);
         reasonText = findViewById(R.id.reasonText);
         locationLabel = findViewById(R.id.locationLabel);
@@ -107,9 +107,15 @@ public class EditActivity extends AppCompatActivity {
 
         employeeLabel = findViewById(R.id.employeeLabel);
         employeeDropDown = findViewById(R.id.employeeDropDown);
+        customerDropDown = findViewById(R.id.customerDropDown);
 
+        tempReasonArray = currentItem.getDescription().split("\n");
+        tempReasonString = tempReasonArray[0];
+        reasonText.setText(tempReasonString);
+        locationText.setText(currentItem.getLocation());
+
+        employeeArray.add("Any Available");
         //Call method to populate Spinner from ArrayList
-        employeeArray.add("Any Available"); //Default, for any employee available.
         addEmployeesToSpinner();
 
         employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -125,7 +131,34 @@ public class EditActivity extends AppCompatActivity {
 
         });
 
+
+
+        CreateActivity.CustomerSpinner defaultCustomer = new CreateActivity.CustomerSpinner("Choose Customer",
+                "abc@example.com");
+        CreateActivity.CustomerSpinner currentCustomer = new CreateActivity.CustomerSpinner(currentItem.getSummary()
+        , currentItem.getAttendees().get(0).toString());
+        customerSpinners.add(defaultCustomer);
+        customerSpinners.add(currentCustomer);
+
+        addCustomersToSpinner();
+        customerDropDown.setSelection(1);
+
+        customerDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                CreateActivity.CustomerSpinner tempCustomer = (CreateActivity.CustomerSpinner) customerDropDown.getSelectedItem();
+                nameString = tempCustomer.getCustomerName();
+                emailString = tempCustomer.getCustomerEmailAddress();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                nameString = "None";
+            }
+        });
+
         final Button saveButton = findViewById(R.id.saveButton);
+        saveButton.setText("Save Changes");
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 calendarStart = new GregorianCalendar(
@@ -142,8 +175,6 @@ public class EditActivity extends AppCompatActivity {
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
-                nameString = nameText.getText().toString();
-                emailString = emailText.getText().toString();
                 reasonString = reasonText.getText().toString()
                         + "\nWith employee: " + employeeString;
                 locationString = locationText.getText().toString();
@@ -215,8 +246,8 @@ public class EditActivity extends AppCompatActivity {
             if (employees != null) {
                 for(Employee employee : employees)
                 {
-                    employeeArray.add(employee.getName());
-                    Log.i("Employee Added", "Adding " + employee.getName() + " to the arraylist.");
+                    employeeArray.add(employee.getNickname());
+                    Log.i("Employee Added", "Adding " + employee.getNickname() + " to the arraylist.");
                 }
 
             }
@@ -230,6 +261,14 @@ public class EditActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, employeeArray);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         employeeDropDown.setAdapter(dataAdapter);
+    }
+
+    private void addCustomersToSpinner()
+    {
+        ArrayAdapter<CreateActivity.CustomerSpinner> dataAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, customerSpinners);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        customerDropDown.setAdapter(dataAdapter);
     }
 
     private class EditEntryTask extends AsyncTask<Void, Void, Event> {

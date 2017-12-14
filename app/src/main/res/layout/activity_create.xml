@@ -26,43 +26,15 @@
                 android:id="@+id/nameLabel"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:text="Customer Name:"
+                android:text="Customer:"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
 
-            <EditText
-                android:id="@+id/nameText"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:textSize="20sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/emailLabel"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:text="Customer Email:"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/emailText"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textEmailAddress"
-                android:textSize="20sp" />
+            <Spinner
+                android:id="@+id/customerDropDown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -151,12 +123,6 @@
         </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="1219dp"
-            android:layout_height="245dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="60dp"
-            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/dateLabel"
@@ -174,7 +140,8 @@
                 android:layout_weight="1"
                 android:endYear="2018"
                 android:paddingLeft="30dp"
-                android:startYear="2017" />
+                android:startYear="2017"
+                android:calendarViewShown="false"/>
 
             <TextView
                 android:id="@+id/timeLabel"
@@ -208,16 +175,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-        </LinearLayout>
 
 
     </LinearLayout>

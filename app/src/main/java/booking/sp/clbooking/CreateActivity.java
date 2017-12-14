@@ -26,6 +26,9 @@ import com.clover.sdk.util.CloverAccount;
 import com.clover.sdk.v1.BindingException;
 import com.clover.sdk.v1.ClientException;
 import com.clover.sdk.v1.ServiceException;
+import com.clover.sdk.v1.customer.Customer;
+import com.clover.sdk.v1.customer.CustomerConnector;
+import com.clover.sdk.v1.customer.EmailAddress;
 import com.clover.sdk.v3.employees.Employee;
 import com.clover.sdk.v3.employees.EmployeeConnector;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -44,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -54,17 +58,17 @@ public class CreateActivity extends AppCompatActivity {
     private DatePicker dateStart;
     private TimePicker timeEnd;
     private TextView nameLabel;
-    private EditText nameText;
-    private TextView emailLabel;
-    private EditText emailText;
     private TextView reasonLabel;
     private EditText reasonText;
     private TextView employeeLabel;
     private TextView locationLabel;
     private EditText locationText;
-    private List<String> employeeArray = new ArrayList<>();
-    private List<String> testArray = new ArrayList<>();
+    public static List<String> employeeArray = new ArrayList<>();
     private Spinner employeeDropDown;
+    private List<String> customerArray = new ArrayList<>();
+    private List<String> customerEmailArray = new ArrayList<>();
+    private Spinner customerDropDown;
+    private List<CustomerSpinner> customerSpinners = new ArrayList<>();
 
     GoogleAccountCredential mCredential = MainActivity.mCredential;
     Calendar calendarStart;
@@ -78,6 +82,7 @@ public class CreateActivity extends AppCompatActivity {
     //Clover variables
     private Account mAccount;
     private EmployeeConnector mEmployeeConnector;
+    private CustomerConnector mCustomerConnector;
 
 
     @Override
@@ -90,9 +95,7 @@ public class CreateActivity extends AppCompatActivity {
         dateStart = findViewById(R.id.dateStart);
         timeEnd = findViewById(R.id.timeEnd);
         nameLabel = findViewById(R.id.nameLabel);
-        nameText = findViewById(R.id.nameText);
-        emailLabel = findViewById(R.id.emailLabel);
-        emailText = findViewById(R.id.emailText);
+        customerDropDown = findViewById(R.id.customerDropDown);
         reasonLabel = findViewById(R.id.reasonLabel);
         reasonText = findViewById(R.id.reasonText);
         locationLabel = findViewById(R.id.locationLabel);
@@ -104,6 +107,12 @@ public class CreateActivity extends AppCompatActivity {
         //Call method to populate Spinner from ArrayList
         employeeArray.add("Any Available"); //Default, for any employee available.
         addEmployeesToSpinner();
+
+        CustomerSpinner defaultCustomer = new CustomerSpinner("Choose Customer", "abc@example.com");
+        customerSpinners.add(defaultCustomer);
+        addCustomersToSpinner();
+
+        //Method to populate Customer Spinner
 
         employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -118,7 +127,22 @@ public class CreateActivity extends AppCompatActivity {
 
         });
 
+        customerDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                CustomerSpinner tempCustomer = (CustomerSpinner) customerDropDown.getSelectedItem();
+                nameString = tempCustomer.getCustomerName();
+                emailString = tempCustomer.getCustomerEmailAddress();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                nameString = "None";
+            }
+        });
+
         final Button saveButton = findViewById(R.id.saveButton);
+        saveButton.setText("Create Event");
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 calendarStart = new GregorianCalendar(
@@ -135,8 +159,7 @@ public class CreateActivity extends AppCompatActivity {
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
-                nameString = nameText.getText().toString();
-                emailString = emailText.getText().toString();
+                //emailString = emailText.getText().toString();
                 reasonString = reasonText.getText().toString()
                         + "\nWith employee: " + employeeString;
                 locationString = locationText.getText().toString();
@@ -162,14 +185,17 @@ public class CreateActivity extends AppCompatActivity {
         }
 
         connectEmployee();
+        connectCustomer();
 
         new EmployeeAsyncTask().execute();
+        new CustomerAsyncTask().execute();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         disconnectEmployee();
+        disconnectCustomer();
     }
 
 
@@ -186,6 +212,22 @@ public class CreateActivity extends AppCompatActivity {
         if (mEmployeeConnector != null) {
             mEmployeeConnector.disconnect();
             mEmployeeConnector = null;
+        }
+    }
+
+    private void connectCustomer() {
+        disconnectCustomer();
+
+        if (mAccount != null) {
+            mCustomerConnector = new CustomerConnector(this, mAccount, null);
+            mCustomerConnector.connect();
+        }
+    }
+
+    private void disconnectCustomer() {
+        if (mCustomerConnector != null) {
+            mCustomerConnector.disconnect();
+            mCustomerConnector = null;
         }
     }
 
@@ -208,11 +250,52 @@ public class CreateActivity extends AppCompatActivity {
             if (employees != null) {
                 for(Employee employee : employees)
                 {
-                    employeeArray.add(employee.getName());
-                    Log.i("Employee Added", "Adding " + employee.getName() + " to the arraylist.");
+                    employeeArray.add(employee.getNickname());
+                    Log.i("Employee Added", "Adding " + employee.getNickname() + " to the arraylist.");
                 }
-
+                Collections.sort(employeeArray, String.CASE_INSENSITIVE_ORDER);
             }
+        }
+
+    }
+
+    private class CustomerAsyncTask extends AsyncTask<Object, Object, List<Customer>> {
+
+        @Override
+        protected List<Customer> doInBackground(Object... voids) {
+            try {
+                List<Customer> customers = mCustomerConnector.getCustomers();
+                List<Customer> newCustomers = new ArrayList<>();
+                if (customers != null) {
+                    for(Customer customer : customers)
+                    {
+                        Customer c = mCustomerConnector.getCustomer(customer.getId());
+                        newCustomers.add(c);
+                    }
+                    return newCustomers;
+                }
+            } catch (RemoteException | ClientException | ServiceException | BindingException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected final void onPostExecute(List<Customer> newCustomers) {
+            super.onPostExecute(newCustomers);
+            if(newCustomers != null)
+            {
+                for(Customer customer : newCustomers)
+                {
+                    CustomerSpinner tempCustomer = new CustomerSpinner(customer.getFirstName() + " " + customer.getLastName()
+                    , customer.getEmailAddresses().get(0).getEmailAddress());
+                    customerSpinners.add(tempCustomer);
+                    Log.i("Name", tempCustomer.customerName);
+                    Log.i("Email", tempCustomer.emailAddress);
+                }
+            }
+
         }
 
     }
@@ -223,6 +306,14 @@ public class CreateActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, employeeArray);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         employeeDropDown.setAdapter(dataAdapter);
+    }
+
+    private void addCustomersToSpinner()
+    {
+        ArrayAdapter<CustomerSpinner> dataAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, customerSpinners);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        customerDropDown.setAdapter(dataAdapter);
     }
 
     private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
@@ -318,5 +409,33 @@ public class CreateActivity extends AppCompatActivity {
                 //text.setText("Request cancelled.");
             }
         }
+    }
+
+    public static class CustomerSpinner
+    {
+        public String customerName;
+        public String emailAddress;
+
+        public CustomerSpinner(String customerName, String emailAddress)
+        {
+            this.customerName = customerName;
+            this.emailAddress = emailAddress;
+        }
+
+        public String getCustomerName()
+        {
+            return customerName;
+        }
+
+        public String getCustomerEmailAddress()
+        {
+            return emailAddress;
+        }
+
+        @Override
+        public String toString() {
+            return customerName;
+        }
+
     }
 }

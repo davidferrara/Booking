@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
     SimpleArrayAdapter adapter;
     ListView listview;
     static Event currentItem;
-    SimpleDateFormat sdf = new SimpleDateFormat("MMMM-dd KK:mm a");
+    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
     SimpleDateFormat currentDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
     TextView currentDate;
     Date date = new Date();

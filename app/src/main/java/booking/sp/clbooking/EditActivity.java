@@ -5,6 +5,7 @@ package booking.sp.clbooking;
  */
 
 import android.accounts.Account;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -95,6 +96,10 @@ public class EditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
 
+        getSupportActionBar().setTitle("Clover Booking: Edit Appointment");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         //Assign all fields
         timeStart = findViewById(R.id.timeStart);
         dateStart = findViewById(R.id.dateStart);
@@ -157,6 +162,8 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+
+
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setText("Save Changes");
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -184,6 +191,16 @@ public class EditActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            this.finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -89,6 +90,11 @@ public class CreateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
+
+        //Set up the action bar
+        getSupportActionBar().setTitle("Clover Booking: Create Appointment");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Assign all fields
         timeStart = findViewById(R.id.timeStart);
@@ -169,6 +175,16 @@ public class CreateActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            this.finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

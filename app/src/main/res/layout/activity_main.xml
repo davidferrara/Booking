@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
+    android:background="#BBDEFB"
     tools:context="booking.sp.clbooking.MainActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

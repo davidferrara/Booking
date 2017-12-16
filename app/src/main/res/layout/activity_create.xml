@@ -5,7 +5,7 @@
     android:id="@+id/ScrollView01"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#BBDEFB">
+    android:background="#eeeeee">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -238,7 +238,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:text="Create Entry"
-            android:textColor="#FFFFFF"
+            android:textColor="#eeeeee"
             android:textSize="20sp"
             android:background="#0D47A1"/>
 

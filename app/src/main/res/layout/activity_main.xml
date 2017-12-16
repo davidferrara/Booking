@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:background="#BBDEFB"
+    android:background="#eeeeee"
     tools:context="booking.sp.clbooking.MainActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -100,7 +100,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:text="Create"
-        android:textColor="#FFFFFF"
+        android:textColor="#eeeeee"
         android:textSize="20sp"
         android:background="#0D47A1" />
 

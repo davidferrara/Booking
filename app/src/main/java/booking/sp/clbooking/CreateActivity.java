@@ -64,7 +64,7 @@ public class CreateActivity extends AppCompatActivity {
     private TextView employeeLabel;
     private TextView locationLabel;
     private EditText locationText;
-    public static List<String> employeeArray = new ArrayList<>();
+    public  List<String> employeeArray = new ArrayList<>();
     private Spinner employeeDropDown;
     private List<String> customerArray = new ArrayList<>();
     private List<String> customerEmailArray = new ArrayList<>();

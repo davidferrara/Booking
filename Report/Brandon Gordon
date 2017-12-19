@@ -1,0 +1,8 @@
+Contributions to the project:
+
+- Helped with authoring project spec, design doc, presentation
+- Integrated Clover Customer and Employee data with the project (includes Customer and Employee spinners)
+- Set up form for creating and editing events
+- Implemented autofill feature when editing events
+- Set up notifications for creation, editing, and deletion of events
+- Fixed Clover sandbox upload issues

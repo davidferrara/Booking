@@ -1,0 +1,5 @@
+Issues that we are aware of:
+
+- Events are able to be created in the past
+- Customers must have an email address in their profile
+- Employees must have a nickname in their profile

@@ -1,0 +1,9 @@
+Issues fixed after the project demo:
+
+- Customer Clover integration was added
+- Full GUI in general was polished (action bar changed, color scheme changed, etc.)
+- Edit Activity now autofills with selected event data
+- Email notifications now sent when editing and deleting events
+- Dates were removed from list view
+- List view is now evenly spread out and has headings
+- Buttons in list view were changed to easily recoginzable icons (pencil = edit, trash can = delete)

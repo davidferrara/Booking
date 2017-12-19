@@ -7,3 +7,4 @@ Issues fixed after the project demo:
 - Dates were removed from list view
 - List view is now evenly spread out and has headings
 - Buttons in list view were changed to easily recoginzable icons (pencil = edit, trash can = delete)
+- Added action bar for going back to the  main screen

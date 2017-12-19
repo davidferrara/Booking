@@ -1,0 +1,11 @@
+
+Contributions:
+
+Wrote Create Event Functionality/API calls (Integrated by Brandon/Tyler)
+Designed the Current UI (Along with help from David and Brandon)
+Programmed and Implemented the Calendar View (deprecated/not in use anymore)
+Team Scheduling (Whenever David couldn't or was busy)
+Made some Edits to the Design Document (over the course of the semester)
+General Bugfixing
+Found the recording Software for the Video 
+(David recorded and edited the video due to laptop issues on my end)

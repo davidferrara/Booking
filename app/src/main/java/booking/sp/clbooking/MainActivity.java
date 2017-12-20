@@ -1,5 +1,9 @@
 package booking.sp.clbooking;
 
+//MainActivity: Includes the ListView of events loaded from the Google Calendar API.
+//Allows the user to traverse from date to date (default date is current date),
+//and allows the user to create, edit, and delete events.
+
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -118,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
 
         //Set up the title in the action bar
         getSupportActionBar().setTitle("Clover Booking");
-        //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#0D47A1")));
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -367,21 +370,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
 
         @Override
         protected void onPreExecute() {
-            //mOutputText.setText("");
-            //mProgress.show();
+
         }
 
         @Override
         protected void onPostExecute(List<Event> output) {
-            //mProgress.hide();
-            //if (output == null || output.size() == 0) {
-                //    mOutputText.setText("No results returned.");
-            //} else {
-                //    List<String> list = new ArrayList<>();
-                //    for (Event event: output) {
-                //        list.add(event.toString()+"\n");
-                //    }
-                //    mOutputText.setText(TextUtils.join("\n", list));
                 events = output;
             if (events != null) {
                 listview.setVisibility(View.VISIBLE);
@@ -392,31 +385,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
                 listview.setVisibility(View.INVISIBLE);
                 //set empty screen
             }
-            //}
+
         }
 
         @Override
         protected void onCancelled() {
-            //mProgress.hide();
-            //if (mLastError != null) {
-            //    if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-            //        showGooglePlayServicesAvailabilityErrorDialog(
-            //                ((GooglePlayServicesAvailabilityIOException) mLastError)
-            //                        .getConnectionStatusCode());
-            //    } else if (mLastError instanceof UserRecoverableAuthIOException) {
-            //        startActivityForResult(
-            //                ((UserRecoverableAuthIOException) mLastError).getIntent(),
-            //                MainActivity.REQUEST_AUTHORIZATION);
-            //    } else {
-            //        mOutputText.setText("The following error occurred:\n"
-            //                + mLastError.getMessage());
-            //    }
-            //} else {
-            //    mOutputText.setText("Request cancelled.");
-            //}
+
         }
     }
 
+    //Task to delete entry from the Calendar.
     private class DeleteEntryTask extends AsyncTask<Void, Void, Event> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Event mEvent;
@@ -481,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnector.
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            //mOutputText.setText("No network connection available.");
+
         } else {
             new MakeRequestTask(mCredential).execute();
         }

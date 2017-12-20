@@ -1,7 +1,7 @@
 package booking.sp.clbooking;
 
 /**
- * Created by Ty on 11/5/2017.
+ * CreateActivity: creates an event and adds it to the user's primary Google Calendar.
  */
 
 import android.accounts.Account;
@@ -55,6 +55,7 @@ import java.util.TimeZone;
 
 public class CreateActivity extends AppCompatActivity {
 
+    //Variables
     private TimePicker timeStart;
     private DatePicker dateStart;
     private TimePicker timeEnd;
@@ -120,6 +121,7 @@ public class CreateActivity extends AppCompatActivity {
 
         //Method to populate Customer Spinner
 
+        //Action to perform with selected Employee
         employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -133,6 +135,7 @@ public class CreateActivity extends AppCompatActivity {
 
         });
 
+        //Action to perform with selected Customer
         customerDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -147,6 +150,7 @@ public class CreateActivity extends AppCompatActivity {
             }
         });
 
+        //Save Button
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setText("Create Event");
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -165,7 +169,6 @@ public class CreateActivity extends AppCompatActivity {
                         timeEnd.getCurrentHour(),
                         timeEnd.getCurrentMinute(),
                         00);
-                //emailString = emailText.getText().toString();
                 reasonString = reasonText.getText().toString()
                         + "\nWith employee: " + employeeString;
                 locationString = locationText.getText().toString();
@@ -177,6 +180,7 @@ public class CreateActivity extends AppCompatActivity {
         });
     }
 
+    //Return to Home Screen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -214,7 +218,7 @@ public class CreateActivity extends AppCompatActivity {
         disconnectCustomer();
     }
 
-
+    //Connect Clover Employees
     private void connectEmployee() {
         disconnectEmployee();
 
@@ -231,6 +235,7 @@ public class CreateActivity extends AppCompatActivity {
         }
     }
 
+    //Connect Clover Customers
     private void connectCustomer() {
         disconnectCustomer();
 
@@ -316,6 +321,7 @@ public class CreateActivity extends AppCompatActivity {
 
     }
 
+    //Add Clover Employees to a spinner
     private void addEmployeesToSpinner()
     {
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
@@ -324,6 +330,7 @@ public class CreateActivity extends AppCompatActivity {
         employeeDropDown.setAdapter(dataAdapter);
     }
 
+    //Add Clover Customers to a spinner
     private void addCustomersToSpinner()
     {
         ArrayAdapter<CustomerSpinner> dataAdapter = new ArrayAdapter<>(this,
@@ -332,6 +339,7 @@ public class CreateActivity extends AppCompatActivity {
         customerDropDown.setAdapter(dataAdapter);
     }
 
+    //Task to Create Event in Calendar
     private class CreateEntryTask extends AsyncTask<Void, Void, Event> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
@@ -355,8 +363,6 @@ public class CreateActivity extends AppCompatActivity {
             DateTime startDateTime = new DateTime(calendarStart.getTime());
             EventDateTime start = new EventDateTime()
                     .setDateTime(startDateTime);
-            //.setTimeZone(TimeZone.getDefault().toString());
-            //text.setText(""+(TimeZone.getDefault()));
             event.setStart(start);
 
             DateTime endDateTime = new DateTime(calendarEnd.getTime());
@@ -404,9 +410,9 @@ public class CreateActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Event output) {
             if (output == null) {
-                //text.setText("Event is null");
+
             } else {
-                //text.setText(""+output.toString());
+
             }
         }
 
@@ -418,15 +424,15 @@ public class CreateActivity extends AppCompatActivity {
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
-                    //text.setText("The following error occurred:\n"
-                    // + mLastError.getMessage());
+
                 }
             } else {
-                //text.setText("Request cancelled.");
+
             }
         }
     }
 
+    //Object created for Customer that contains customer's name and email address.
     public static class CustomerSpinner
     {
         public String customerName;

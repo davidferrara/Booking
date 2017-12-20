@@ -23,7 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * Created by Ty on 11/5/2017.
+ * ListViewLoader: Class that sets up the MainActivity's ListView.
  */
 public class ListViewLoader extends MainActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -46,10 +46,7 @@ public class ListViewLoader extends MainActivity
 
         // Create a progress bar to display while the list loads
         ProgressBar progressBar = new ProgressBar(this);
-       // progressBar.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-       //         LayoutParams.WRAP_CONTENT, Gravity.CENTER));
         progressBar.setIndeterminate(true);
-        //getListView().setEmptyView(progressBar);
 
         // Must add the progress bar to the root of the layout
         ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
@@ -64,11 +61,10 @@ public class ListViewLoader extends MainActivity
         mAdapter = new SimpleCursorAdapter(this,
                 android.R.layout.simple_list_item_1, null,
                 fromColumns, toViews, 0);
-        //setListAdapter(mAdapter);
+
 
         // Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        //getLoaderManager().initLoader(0, null, this);
     }
 
     // Called when a new Loader needs to be created

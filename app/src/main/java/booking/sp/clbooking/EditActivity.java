@@ -1,7 +1,8 @@
 package booking.sp.clbooking;
 
 /**
- * Created by Ty on 11/5/2017.
+ * EditActivity: Allows the user to edit a selected event from the MainActivity's ListView.
+ * Autofills with selected event's information.
  */
 
 import android.accounts.Account;
@@ -59,6 +60,8 @@ import java.util.List;
 import static booking.sp.clbooking.MainActivity.currentItem;
 
 public class EditActivity extends AppCompatActivity {
+
+    //Variables
     private TimePicker timeStart;
     private DatePicker dateStart;
     private TimePicker timeEnd;
@@ -123,6 +126,7 @@ public class EditActivity extends AppCompatActivity {
         //Call method to populate Spinner from ArrayList
         addEmployeesToSpinner();
 
+        //Action to perform with selected Employee
         employeeDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -137,7 +141,7 @@ public class EditActivity extends AppCompatActivity {
         });
 
 
-
+        //Set selected event's current customer.
         CreateActivity.CustomerSpinner defaultCustomer = new CreateActivity.CustomerSpinner("Choose Customer",
                 "abc@example.com");
         CreateActivity.CustomerSpinner currentCustomer = new CreateActivity.CustomerSpinner(currentItem.getSummary()
@@ -145,9 +149,11 @@ public class EditActivity extends AppCompatActivity {
         customerSpinners.add(defaultCustomer);
         customerSpinners.add(currentCustomer);
 
+        //Call method to add customers to the spinner.
         addCustomersToSpinner();
         customerDropDown.setSelection(1);
 
+        //Action to perform with selected customer.
         customerDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -163,7 +169,7 @@ public class EditActivity extends AppCompatActivity {
         });
 
 
-
+        //Button to save changes.
         final Button saveButton = findViewById(R.id.saveButton);
         saveButton.setText("Save Changes");
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -288,6 +294,7 @@ public class EditActivity extends AppCompatActivity {
         customerDropDown.setAdapter(dataAdapter);
     }
 
+    //Task to edit selected entry in Calendar.
     private class EditEntryTask extends AsyncTask<Void, Void, Event> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
@@ -312,8 +319,6 @@ public class EditActivity extends AppCompatActivity {
             EventDateTime start = new EventDateTime()
                     .setDateTime(startDateTime);
             event.setStart(start);
-
-            //event.setSummary("Appointment at Somewhere");
 
             DateTime endDateTime = new DateTime(calendarEnd.getTime());
             EventDateTime end = new EventDateTime()
@@ -350,9 +355,9 @@ public class EditActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Event output) {
             if (output == null) {
-                //text.setText("Event is null");
+
             } else {
-                //text.setText(""+output.toString());
+
             }
         }
 
@@ -364,15 +369,15 @@ public class EditActivity extends AppCompatActivity {
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
-                    //text.setText("The following error occurred:\n"
-                    // + mLastError.getMessage());
+
                 }
             } else {
-                //text.setText("Request cancelled.");
+
             }
         }
     }
 
+    //Task to get selected entry from Calendar.
     private class GetEntryTask extends AsyncTask<Void, Void, Event> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
@@ -435,9 +440,9 @@ public class EditActivity extends AppCompatActivity {
             dateStart.updateDate(calE.get(Calendar.YEAR), calE.get(Calendar.MONTH), calE.get(Calendar.DAY_OF_MONTH));
 
             if (output == null) {
-                //text.setText("Event is null");
+
             } else {
-                //text.setText(""+output.toString());
+
             }
         }
 
@@ -449,11 +454,10 @@ public class EditActivity extends AppCompatActivity {
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
-                    //text.setText("The following error occurred:\n"
-                    // + mLastError.getMessage());
+
                 }
             } else {
-                //text.setText("Request cancelled.");
+
             }
         }
     }

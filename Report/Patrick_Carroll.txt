@@ -1,0 +1,8 @@
++Authored technical information of Design Document
+ +Created Presentation
+ +Resolved Clover permissions errors
+ +Assisted in UI development
+ +Laid foundation for employee/customer information integration
+ +Assisted in Event creation and notifications
+ +Helped resolve Clover sandbox issues
+ +Assisted in calenderview implementation (decremented)

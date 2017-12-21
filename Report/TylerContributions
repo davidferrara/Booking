@@ -1,0 +1,7 @@
+Created google developer account to enable our andriod studio clients and app to use google calendar api
+retrieving certificate from user login to enable us to use the user's google account
+Figured out google calendar api calls to create event, delete event, retreive events, edit event
+built prototype UI to test calls to google calendar api
+built custom list view to show details about events in a list format
+implemented edit screen to fill in the correct data for the event that is being edited
+Helped team members who had trouble
